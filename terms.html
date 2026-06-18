@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Terms of Use — AetherEnhance</title>
+<meta name="description" content="AetherEnhance Terms of Use — Rules and guidelines for using our services"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--surface:#101010;--surface2:#151515;
+  --border:#222;--border2:#2e2e2e;--border3:#3a3a3a;
+  --muted:#555;--subtle:#888;--body-color:#c8c8c8;--text-color:#e8e8e8;
+  --bright:#f5f5f5;--white:#ffffff;
+  --font:'Inter',system-ui,sans-serif;
+  --head:'Sora',system-ui,sans-serif;
+  --mono:'DM Mono','SF Mono',monospace;
+  --max:800px;
+  --tiktok-red:#ff004f;
+}
+[data-theme="light"]{
+  --bg:#f8fafc;--surface:#ffffff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--border2:#cbd5e1;--border3:#94a3b8;
+  --muted:#64748b;--subtle:#475569;--body-color:#334155;--text-color:#0f172a;
+  --bright:#0f172a;--white:#0f172a;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--body-color);font-family:var(--font);line-height:1.7;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border2)}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+@media(max-width:600px){.wrap{padding:0 18px}}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--border);background:rgba(8,8,8,.9);backdrop-filter:blur(16px);transition:background .3s,border-color .3s}
+[data-theme="light"] nav{background:rgba(248,250,252,.9)}
+.nav-i{display:flex;align-items:center;height:58px;max-width:900px;margin:0 auto;padding:0 28px;gap:32px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo-box{width:28px;height:28px;background:var(--white);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:background .3s}
+.logo-name{font-family:var(--head);font-weight:700;font-size:15px;color:var(--white);letter-spacing:-.02em;transition:color .3s}
+.nav-end{margin-left:auto;display:flex;align-items:center;gap:14px}
+
+.theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--subtle);transition:all .2s;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--border3);color:var(--text-color)}
+.theme-toggle svg{width:16px;height:16px}
+
+.back-link{font-size:13px;color:var(--subtle);text-decoration:none;transition:color .14s;font-weight:400}
+.back-link:hover{color:var(--text-color)}
+
+/* ── CONTENT ── */
+.page-content{padding:120px 0 80px}
+.page-content h1{font-family:var(--head);font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-.03em;color:var(--white);margin-bottom:8px;transition:color .3s}
+.page-content .last-updated{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:44px;display:block}
+.page-content h2{font-family:var(--head);font-size:22px;font-weight:700;color:var(--white);margin:40px 0 14px;letter-spacing:-.02em;transition:color .3s}
+.page-content h3{font-family:var(--head);font-size:17px;font-weight:600;color:var(--text-color);margin:28px 0 10px;letter-spacing:-.01em;transition:color .3s}
+.page-content p{font-size:14px;color:var(--subtle);margin-bottom:16px;line-height:1.8}
+.page-content ul,.page-content ol{margin:12px 0 20px 22px;color:var(--subtle)}
+.page-content li{font-size:14px;margin-bottom:8px;line-height:1.7}
+.page-content strong{color:var(--text-color);font-weight:600}
+.page-content a{color:var(--tiktok-red);text-decoration:none;transition:color .14s}
+.page-content a:hover{text-decoration:underline}
+.page-content .divider{height:1px;background:var(--border);margin:44px 0;transition:background .3s}
+.page-content .highlight-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px 26px;margin:24px 0;transition:background .3s,border-color .3s}
+.page-content .highlight-box p{margin-bottom:0;font-size:13px}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:28px 0;text-align:center;transition:border-color .3s}
+.fcopy{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.03em}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-i">
+    <a class="logo" href="/">
+      <div class="logo-box">◈</div>
+      <span class="logo-name">AetherEnhance</span>
+    </a>
+    <div class="nav-end">
+      <a class="back-link" href="index.html">← Back to Home</a>
+      <button class="theme-toggle" id="theme-btn" title="Switch theme" aria-label="Toggle light/dark mode">
+        <svg id="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <svg id="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-content">
+  <div class="wrap">
+    <h1>Terms of Use</h1>
+    <span class="last-updated">Last Updated: January 1, 2025</span>
+
+    <div class="highlight-box">
+      <p><strong>In short:</strong> Use AetherEnhance responsibly. Don't abuse TikTok's platform. We provide enhancement tools — you're responsible for how you use them. The service is free, as-is, with no warranties.</p>
+    </div>
+
+    <h2>1. Acceptance of Terms</h2>
+    <p>By installing the AetherEnhance Chrome extension, using the Web Studio, or accessing any related services (collectively, the "Services"), you agree to be bound by these Terms of Use. If you do not agree, do not use our Services.</p>
+
+    <h2>2. Description of Service</h2>
+    <p>AetherEnhance provides tools that enhance the TikTok experience, including:</p>
+    <ul>
+      <li>Video quality enhancement at the browser rendering level</li>
+      <li>Video compression for optimized uploads</li>
+      <li>Video downloading capabilities</li>
+      <li>Creator analytics overlays</li>
+      <li>Repost management tools</li>
+      <li>Auto caption generation</li>
+      <li>Web Studio for mobile and desktop video processing</li>
+    </ul>
+    <p>All Services are provided free of charge. We reserve the right to modify, suspend, or discontinue any feature at any time without prior notice.</p>
+
+    <h2>3. User Responsibilities</h2>
+    <p>You agree to use AetherEnhance in compliance with:</p>
+    <ul>
+      <li><strong>TikTok's Terms of Service</strong> — AetherEnhance is a third-party tool; you must still follow TikTok's rules</li>
+      <li><strong>Applicable laws</strong> — Including copyright, privacy, and intellectual property laws in your jurisdiction</li>
+      <li><strong>These Terms</strong> — Any violation may result in termination of access to our Services</li>
+    </ul>
+
+    <h3>You may not:</h3>
+    <ul>
+      <li>Use AetherEnhance to harass, abuse, or harm others</li>
+      <li>Download or repost content without the original creator's permission where required by law</li>
+      <li>Attempt to reverse engineer, decompile, or extract the source code of our Services</li>
+      <li>Use automated scripts or bots to abuse our Web Studio processing</li>
+      <li>Upload illegal content, malware, or any material that violates TikTok's community guidelines</li>
+      <li>Resell, redistribute, or white-label AetherEnhance as your own product</li>
+    </ul>
+
+    <h2>4. Intellectual Property</h2>
+    <p><strong>Our IP:</strong> AetherEnhance, its codebase, design, branding, and documentation are protected by copyright and intellectual property laws. You receive a limited, non-exclusive, non-transferable license to use the Services as intended.</p>
+    <p><strong>Your Content:</strong> You retain all rights to videos you upload to our Web Studio. We claim no ownership over your content. Videos are deleted immediately after processing.</p>
+    <p><strong>TikTok Content:</strong> Content viewed or downloaded through TikTok remains the property of its respective creators. Respect creator rights and applicable copyright laws.</p>
+
+    <h2>5. Video Downloading Policy</h2>
+    <p>Our video download feature is intended for:</p>
+    <ul>
+      <li>Personal, offline viewing of content you have the right to access</li>
+      <li>Content creators downloading their own videos for backup or cross-platform use</li>
+      <li>Educational and archival purposes where permitted by law</li>
+    </ul>
+    <p>You agree not to use downloaded videos for commercial purposes without explicit permission from the content owner.</p>
+
+    <h2>6. Disclaimer of Warranties</h2>
+    <p><strong>AetherEnhance is provided "as is" and "as available" without warranties of any kind, either express or implied.</strong> We do not guarantee:</p>
+    <ul>
+      <li>Uninterrupted or error-free operation</li>
+      <li>Compatibility with all TikTok updates or changes</li>
+      <li>That video enhancement will work identically on all systems</li>
+      <li>That our Services will always remain free</li>
+    </ul>
+    <p>TikTok may update their platform at any time, which could temporarily or permanently affect AetherEnhance functionality. We will make reasonable efforts to maintain compatibility but cannot guarantee it.</p>
+
+    <h2>7. Limitation of Liability</h2>
+    <p>To the fullest extent permitted by law, AetherEnhance and its developers shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Services, including but not limited to:</p>
+    <ul>
+      <li>Loss of data or content</li>
+      <li>TikTok account restrictions or bans</li>
+      <li>Video quality issues or processing errors</li>
+      <li>Any damages resulting from service interruptions</li>
+    </ul>
+    <p>Our total liability for any claim shall not exceed zero dollars ($0), as the Services are provided free of charge.</p>
+
+    <h2>8. TikTok Account Safety</h2>
+    <p>While AetherEnhance is designed to work within TikTok's technical boundaries, use of third-party tools carries inherent risk. We are not responsible for any actions TikTok may take against your account. Use the Services at your own discretion.</p>
+    <p>Our Web Studio uses TikTok's official OAuth flow when you choose to post directly. We never see or store your TikTok password.</p>
+
+    <h2>9. Telegram Community Requirement</h2>
+    <p>Access to AetherEnhance features requires joining our Telegram group and channel. This requirement exists to:</p>
+    <ul>
+      <li>Build a community around the tool</li>
+      <li>Provide direct support channels</li>
+      <li>Share updates and changelogs</li>
+      <li>Collect feedback for improvements</li>
+    </ul>
+    <p>You may leave the Telegram community at any time, but doing so may result in loss of access to certain features.</p>
+
+    <h2>10. Termination</h2>
+    <p>We reserve the right to terminate or suspend access to our Services at our sole discretion, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties.</p>
+    <p>Upon termination, your right to use the Services will cease immediately. Features that rely on local storage may persist on your device until manually removed.</p>
+
+    <h2>11. Changes to Terms</h2>
+    <p>We may modify these Terms at any time. Changes will be posted on this page with an updated "Last Updated" date. Material changes will be announced in our Telegram channel. Continued use of the Services after changes constitutes acceptance of the new Terms.</p>
+
+    <h2>12. Governing Law</h2>
+    <p>These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles. Any disputes shall be resolved through good-faith communication in our Telegram community before any formal legal action.</p>
+
+    <h2>13. Contact</h2>
+    <p>For questions about these Terms:</p>
+    <ul>
+      <li><strong>Telegram Group:</strong> <a href="https://t.me/AetherEnhanceGroup" target="_blank">t.me/AetherEnhanceGroup</a></li>
+      <li><strong>Telegram Channel:</strong> <a href="https://t.me/aetherenhance" target="_blank">t.me/aetherenhance</a></li>
+    </ul>
+
+    <div class="divider"></div>
+    <p style="font-size:12px;color:var(--muted)">These terms are written to be fair and understandable. If something isn't clear, reach out to us on Telegram. We're real people, not a faceless corporation.</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span class="fcopy">© 2026 AetherEnhance · <a href="privacy.html" style="color:var(--muted);text-decoration:none">Privacy Policy</a> · <a href="terms.html" style="color:var(--muted);text-decoration:none">Terms of Use</a></span>
+  </div>
+</footer>
+
+<script>
+// Theme toggle with localStorage persistence
+const themeBtn = document.getElementById('theme-btn');
+
+// Check localStorage for saved theme
+let isDark = localStorage.getItem('aether-theme') === null ? true : localStorage.getItem('aether-theme') === 'dark';
+
+function setTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  const sunIcon = document.getElementById('sun-icon');
+  const moonIcon = document.getElementById('moon-icon');
+  if (sunIcon) sunIcon.style.display = dark ? 'block' : 'none';
+  if (moonIcon) moonIcon.style.display = dark ? 'none' : 'block';
+  
+  // Save to localStorage
+  localStorage.setItem('aether-theme', dark ? 'dark' : 'light');
+}
+
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => { 
+    isDark = !isDark; 
+    setTheme(isDark); 
+  });
+}
+
+// Apply saved theme on load
+setTheme(isDark);
+</script>
+</body>
+</html>
