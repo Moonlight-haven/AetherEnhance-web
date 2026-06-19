@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>AetherEnhance — The Best TikTok Enhancement Tool</title>
-<meta name="description" content="14+ features. Video enhancement, video patcher, analytics, repost manager, bookmarks, screen recorder and more. Join our Telegram community."/>
+<meta name="description" content="14+ features. Video patcher, video enhancement, analytics, repost manager, bookmarks, screen recorder and more. Join our Telegram community."/>
 <link rel="icon" type="image/png" href="images/image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -112,6 +112,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(
 
 /* ── STUDIO ENHANCER BADGE ── */
 .studio-enhancer-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border:1px solid var(--tiktok-red);border-radius:24px;font-family:var(--mono);font-size:11px;color:var(--tiktok-red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;background:rgba(255,0,79,.04);animation:badgeIn .6s var(--spring) both}
+.fc-badge-live{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:4px 9px;border-radius:4px;border:1px solid var(--green);color:var(--green);letter-spacing:.06em;background:rgba(0,204,102,.06)}
 @keyframes badgeIn{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 
 /* ── HERO ── */
@@ -173,7 +174,6 @@ section:hover::before{opacity:.15}
 .fc-tag{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);color:var(--muted);letter-spacing:.06em;transition:all .3s}
 .fc:hover .fc-tag{border-color:var(--border3);color:var(--subtle)}
 .fc-badge-coming{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:4px 9px;border-radius:4px;border:1px solid var(--tiktok-red);color:var(--tiktok-red);letter-spacing:.06em;background:rgba(255,0,79,.04);animation:badgePulse 2s ease-in-out infinite}
-.fc-badge-live{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:4px 9px;border-radius:4px;border:1px solid var(--green);color:var(--green);letter-spacing:.06em;background:rgba(0,204,102,.06)}
 @keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* ── HOW ── */
@@ -187,7 +187,6 @@ section:hover::before{opacity:.15}
 .step:hover .stn{color:var(--tiktok-red)}
 .st-title{font-size:15px;font-weight:600;color:var(--text-color);margin-bottom:4px;letter-spacing:-.02em;transition:color .3s}
 .st-desc{font-size:13px;color:var(--subtle);line-height:1.65}
-.step-coming-soon{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid var(--tiktok-red);color:var(--tiktok-red);letter-spacing:.06em;background:rgba(255,0,79,.04);animation:badgePulse 2s ease-in-out infinite}
 
 /* Panel mock */
 .panel-mock{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:20px;box-shadow:var(--glass-shadow);transition:all .5s;animation:panelFloat 6s ease-in-out infinite}
@@ -271,7 +270,6 @@ section:hover::before{opacity:.15}
 .sf:hover .sf-icon{background:var(--tiktok-red);color:white;border-color:var(--tiktok-red);transform:scale(1.1)}
 .sf-title{font-size:13px;font-weight:600;color:var(--text-color);margin-bottom:3px;transition:color .3s}
 .sf-desc{font-size:12px;color:var(--subtle);line-height:1.55}
-.sf-badge{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid var(--tiktok-red);color:var(--tiktok-red);letter-spacing:.06em;background:rgba(255,0,79,.04)}
 
 /* Upload mock */
 .upload-mock{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:var(--glass-shadow);transition:all .5s;animation:panelFloat 7s ease-in-out infinite}
@@ -387,12 +385,12 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
   <div class="hero-orb hero-orb-3"></div>
   <div class="wrap" style="position:relative;z-index:1">
     <div class="studio-enhancer-badge">STUDIO ENHANCER</div>
-    <div class="hero-badge"><span class="pulse"></span>7 Core Modules · Video Patcher Included</div>
+    <div class="hero-badge"><span class="pulse"></span>7 Core Modules · Video Patcher Live</div>
     <h1>BYPASS TIKTOK<br/><span class="dim">COMPRESSION.</span></h1>
-    <p class="hero-sub">Stop losing your detail to platform algorithms. Upload in the <strong>highest possible quality</strong> with our bitrate-locking technology and <strong>video patcher</strong>.</p>
+    <p class="hero-sub">Stop losing your detail to platform algorithms. Upload in the <strong>highest possible quality</strong> with our video patcher and bitrate-locking technology.</p>
     <div class="hero-btns">
-      <a class="btn btn-w btn-lg" href="patcher.html">TRY VIDEO PATCHER</a>
-      <a class="btn btn-tg btn-lg" href="https://t.me/aetherenhance_ch" target="_blank">JOIN MAIN TELEGRAM</a>
+      <a class="btn btn-w btn-lg" href="patcherstudio.html">TRY NOW</a>
+      <a class="btn btn-tg btn-lg" href="https://t.me/AetherEnhance" target="_blank">JOIN MAIN TELEGRAM</a>
     </div>
     <p class="hero-note" style="margin-top:10px">or</p>
     <div style="margin-top:10px">
@@ -416,7 +414,7 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
   </div>
 </div>
 
-<!-- STATS — ∞ FPS -->
+<!-- STATS -->
 <section style="padding:48px 0">
   <div class="wrap">
     <div class="stats-wrap">
@@ -430,15 +428,15 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
   </div>
 </section>
 
-<!-- FEATURES — Video Patcher LIVE -->
+<!-- FEATURES -->
 <section id="features">
   <div class="wrap">
     <span class="sec-tag">What's inside</span>
     <h2 class="sec-title">Everything TikTok<br/>should have built</h2>
-    <p class="sec-sub">7 independent modules. Video Patcher is live. More coming soon. Stay tuned.</p>
+    <p class="sec-sub">7 independent modules. Video Patcher is live. More coming soon.</p>
 
     <div class="feat-grid">
-      <div class="fc reveal from-bottom"><div class="fc-icon">⚡</div><div class="fc-name">Video Patcher</div><div class="fc-desc">Injects bypass parameters, strips canvas metadata, and preserves original quality — all processed in your browser.</div><span class="fc-badge-live">LIVE</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">⚡</div><div class="fc-name">Video Patcher studio</div><div class="fc-desc">Injects bypass parameters, strips canvas metadata, and preserves original quality — all processed in your browser. No server needed.</div><span class="fc-badge-live">LIVE</span></div>
       <div class="fc reveal from-bottom"><div class="fc-icon">◈</div><div class="fc-name">Video Enhancer</div><div class="fc-desc">Forces highest bitrate streams, strips artificial compression filters, applies sharpening and contrast at the browser renderer level.</div><span class="fc-badge-coming">COMING SOON</span></div>
       <div class="fc reveal from-bottom"><div class="fc-icon">⚡</div><div class="fc-name">Compressor</div><div class="fc-desc">Smart video compression that reduces file size while maintaining visual quality. Optimise your videos for faster uploads.</div><span class="fc-badge-coming">COMING SOON</span></div>
       <div class="fc reveal from-bottom"><div class="fc-icon">↓</div><div class="fc-name">Video Downloader</div><div class="fc-desc">Download the current TikTok video at maximum available quality with a single keyboard shortcut.</div><span class="fc-badge-coming">COMING SOON</span></div>
@@ -449,7 +447,7 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
   </div>
 </section>
 
-<!-- HOW IT WORKS — Step 02 has COMING SOON badge -->
+<!-- HOW IT WORKS -->
 <section id="how">
   <div class="wrap">
     <span class="sec-tag">Setup</span>
@@ -459,13 +457,13 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
     <div class="how-wrap">
       <div class="steps">
         <div class="step reveal from-left"><span class="stn">01</span><div><div class="st-title">Join our Telegram community</div><div class="st-desc">Open the popup, click join group then join channel. Two clicks unlocks everything including the Video Patcher.</div></div></div>
-        <div class="step reveal from-left"><span class="stn">02</span><div><div class="st-title">Link your TikTok account</div><div class="st-desc">Connect securely via OAuth. We never see your password. One click and you're ready.</div><span class="step-coming-soon">COMING SOON</span></div></div>
+        <div class="step reveal from-left"><span class="stn">02</span><div><div class="st-title">Link your TikTok account</div><div class="st-desc">Connect securely via OAuth. We never see your password. One click and you're ready.</div></div></div>
         <div class="step reveal from-left"><span class="stn">03</span><div><div class="st-title">Process and upload with the Patcher</div><div class="st-desc">Upload your video, the Video Patcher strips canvas metadata and injects bypass parameters, then you upload. Highest quality guaranteed.</div></div></div>
         <div class="step reveal from-left"><span class="stn">04</span><div><div class="st-title">Or use our extension</div><div class="st-desc">Prefer a browser extension? Get AetherEnhance from the Chrome Web Store.</div><a class="btn btn-w btn-sm" href="https://chrome.google.com/webstore" target="_blank" style="margin-top:10px">Get Now →</a></div></div>
       </div>
       <div class="panel-mock reveal from-right">
         <div class="pm-hdr"><div class="pm-d"></div><div class="pm-d"></div><div class="pm-d"></div><span class="pm-title" style="margin-left:8px">AetherEnhance · 7 modules</span></div>
-        <div class="pm-row"><span class="pm-icon">⚡</span><span class="pm-label">Video Patcher</span><div class="pm-tog patcher-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">⚡</span><span class="pm-label">Video Patcher studio</span><div class="pm-tog patcher-tog"></div></div>
         <div class="pm-row"><span class="pm-icon">◈</span><span class="pm-label">Video Enhancer</span><div class="pm-tog"></div></div>
         <div class="pm-row"><span class="pm-icon">⌇</span><span class="pm-label">Analytics Overlay</span><div class="pm-tog"></div></div>
         <div class="pm-row"><span class="pm-icon">⊞</span><span class="pm-label">Repost Manager</span><div class="pm-tog"></div></div>
@@ -483,29 +481,29 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
   <div class="wrap">
     <span class="sec-tag">Web Studio</span>
     <h2 class="sec-title">For mobile and<br/>PC users</h2>
-    <p class="sec-sub">No extension on your phone? Upload from your device, enhance on our servers, post to TikTok.</p>
+    <p class="sec-sub">No extension on your phone? Upload from your device, patch your video, and post to TikTok.</p>
 
     <div class="studio-wrap">
       <div class="studio-feats">
         <div class="sf reveal from-left"><div class="sf-icon">📤</div><div><div class="sf-title">Upload from any device</div><div class="sf-desc">Tap to browse or drag and drop. MP4, MOV, WebM up to 500MB.</div></div></div>
-        <div class="sf reveal from-left"><div class="sf-icon">⚡</div><div><div class="sf-title">Video Patcher — LIVE</div><div class="sf-desc">Strip canvas metadata, inject bypass parameters, preserve original quality. Available now.</div></div></div>
-        <div class="sf reveal from-left"><div class="sf-icon">🚀</div><div><div class="sf-title">Post directly to TikTok</div><div class="sf-desc">Connect via TikTok OAuth. Set caption, hashtags, and publish in one click.</div><span class="sf-badge">COMING SOON</span></div></div>
-        <div style="padding-top:4px"><a class="btn btn-w" href="studio.html" style="width:100%;justify-content:center">Start bypass →</a></div>
+        <div class="sf reveal from-left"><div class="sf-icon">⚡</div><div><div class="sf-title">Video Patcher studio — LIVE</div><div class="sf-desc">Strip canvas metadata, inject bypass parameters, preserve original quality. Available now.</div></div></div>
+        <div class="sf reveal from-left"><div class="sf-icon">🚀</div><div><div class="sf-title">Post directly to TikTok — LIVE</div><div class="sf-desc">Connect via TikTok OAuth. Set caption, hashtags, and publish in one click.</div></div></div>
+        <div style="padding-top:4px"><a class="btn btn-w" href="patcherstudio.html" style="width:100%;justify-content:center">Try Video Patcher →</a></div>
       </div>
       <div class="upload-mock reveal from-right">
-        <div class="um-hdr"><div class="um-dots"><div class="um-dot"></div><div class="um-dot"></div><div class="um-dot"></div></div><span class="um-title" style="margin-left:6px">Web Studio</span></div>
+        <div class="um-hdr"><div class="um-dots"><div class="um-dot"></div><div class="um-dot"></div><div class="um-dot"></div></div><span class="um-title" style="margin-left:6px">Video Patcher</span></div>
         <div class="um-body">
           <div class="um-drop"><div class="um-drop-icon">📹</div><div class="um-drop-title">Drop your video here</div><div class="um-drop-sub">or tap to open from your device</div><div class="um-drop-note">MP4 · MOV · WEBM · up to 500MB</div></div>
-          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Enhancements</div>
-          <div class="um-chips"><span class="um-chip on">Sharpen ✓</span><span class="um-chip on">Denoise ✓</span><span class="um-chip on">Contrast ✓</span><span class="um-chip">Stabilize</span><span class="um-chip">60fps</span></div>
-          <div class="um-actions"><div class="um-btn um-btn-p">🚀 Patch &amp; Post</div><div class="um-btn um-btn-s">↓ Download</div></div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Bypass Parameters</div>
+          <div class="um-chips"><span class="um-chip on">Canvas Strip ✓</span><span class="um-chip on">Bypass Inject ✓</span><span class="um-chip on">Quality Lock ✓</span></div>
+          <div class="um-actions"><div class="um-btn um-btn-p">⚡ Patch &amp; Post</div><div class="um-btn um-btn-s">📤 Upload to TikTok</div></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ARCHITECTS — Moonlight first, Kaizen second -->
+<!-- ARCHITECTS -->
 <section id="architects" class="architects-section">
   <div class="architects-container">
     <span class="sec-tag">The Architects</span>
@@ -520,7 +518,7 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
         <div class="arch-status"><div class="arch-status-label">System Status</div><div class="arch-status-row"><div class="arch-status-dot"></div><span>All Nodes Operational</span></div></div>
       </div>
       <div class="architects-content">
-        <div class="architect-profile active" id="moonlight"><div class="architect-inner"><div class="architect-info"><h3>Moonlight</h3><p>The system architect behind the Aether engine. Focused on "OLED-ready" blacks and hyper-sharp color grading that pops on mobile displays without losing texture. Built the entire AetherEnhance infrastructure from the ground up.</p><span class="architect-tag">SYSTEM_ARCHITECT</span></div><div class="architect-image-wrapper"><img src="images/Moonlight.png" alt="Moonlight" onerror="this.style.display='none'"></div></div></div>
+        <div class="architect-profile active" id="moonlight"><div class="architect-inner"><div class="architect-info"><h3>Moonlight</h3><p>The system architect behind the Aether engine. Built the entire AetherEnhance infrastructure from the ground up. Focused on "OLED-ready" blacks and hyper-sharp color grading.</p><span class="architect-tag">SYSTEM_ARCHITECT</span></div><div class="architect-image-wrapper"><img src="images/Moonlight.png" alt="Moonlight" onerror="this.style.display='none'"></div></div></div>
         <div class="architect-profile" id="kaizen"><div class="architect-inner"><div class="architect-info"><h3>Kaizen</h3><p>Specializing in high-bitrate aesthetics and technical motion design. Kaizen pushes the boundaries of server-side processing with complex, detail-rich compositions.</p><span class="architect-tag">MOTION_SPECIALIST</span></div><div class="architect-image-wrapper"><img src="images/Kaizen.png" alt="Kaizen" onerror="this.style.display='none'"></div></div></div>
       </div>
     </div>
@@ -535,10 +533,10 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
     <p class="sec-sub">Join the group and the channel. All 7 core features activate. That's it.</p>
     <div class="join-cards">
       <div class="jc reveal from-bottom"><span class="jc-icon">📣</span><div class="jc-name">Telegram Group</div><div class="jc-desc">Main community chat. Ask questions, share tips, report issues, request features.</div><a class="btn btn-tg" href="https://t.me/AetherEnhanceGroup" target="_blank" style="width:100%;justify-content:center">Join the Group →</a><div class="jc-url">t.me/AetherEnhanceGroup</div></div>
-      <div class="jc reveal from-bottom"><span class="jc-icon">📢</span><div class="jc-name">Telegram Channel</div><div class="jc-desc">Official announcements, new features, changelogs and releases. Stay updated.</div><a class="btn btn-tg" href="https://t.me/aetherenhance_ch" target="_blank" style="width:100%;justify-content:center">Join the Channel →</a><div class="jc-url">t.me/aetherenhance</div></div>
+      <div class="jc reveal from-bottom"><span class="jc-icon">📢</span><div class="jc-name">Telegram Channel</div><div class="jc-desc">Official announcements, new features, changelogs and releases. Stay updated.</div><a class="btn btn-tg" href="https://t.me/aetherenhance" target="_blank" style="width:100%;justify-content:center">Join the Channel →</a><div class="jc-url">t.me/aetherenhance</div></div>
       <div class="jc jc-haven reveal from-bottom"><span class="jc-icon"><img src="images/editinghaven.png" alt="Editing Haven" onerror="this.parentElement.innerHTML='🎬'"></span><div class="jc-name">Editing Haven</div><div class="jc-desc">Learn editing & get free editing tools. Tutorials, presets, and a creator community.</div><a class="btn btn-tg" href="https://t.me/editing_haven" target="_blank" style="width:100%;justify-content:center;background:linear-gradient(135deg,#ff004f,#ff3370);border-color:#ff004f;">Join Editing Haven →</a><div class="jc-url">t.me/editing_haven</div></div>
     </div>
-    <div class="cta-box reveal from-bottom"><p>Ready? Start uploading to TikTok in the highest quality possible. Try the Video Patcher now.</p><a class="btn btn-w btn-lg" href="patcher.html">GET STARTED TODAY</a></div>
+    <div class="cta-box reveal from-bottom"><p>Ready? Start uploading to TikTok in the highest quality possible. Try the Video Patcher now.</p><a class="btn btn-w btn-lg" href="patcherstudio.html">GET STARTED TODAY</a></div>
   </div>
 </section>
 
@@ -577,9 +575,9 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
     <div class="faq-wrap reveal from-bottom">
       <div class="faq">
         <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is AetherEnhance really free?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Yes, completely. No credit card, no email, no subscription. Join our Telegram group and channel — that's all we ask — and every feature unlocks instantly.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What does the Video Patcher do?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The Video Patcher strips canvas metadata, injects bypass parameters, and preserves your original video quality by preventing TikTok's re-encoding triggers. It processes everything locally in your browser.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What does the Video Patcher do?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The Video Patcher strips canvas metadata, injects bypass parameters, and preserves your original video quality by preventing TikTok's re-encoding triggers. It processes everything locally in your browser — no data is sent to any server.</div></div>
         <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it improve video quality?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Yes. AetherEnhance forces the highest available bitrate stream, removes compression filters TikTok applies, and adds contrast and sharpening at the browser level.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it work on mobile?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The Chrome extension works on desktop. For mobile, the Web Studio lets you upload, enhance, and post directly from your mobile browser.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it work on mobile?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The Chrome extension works on desktop. For mobile, the Web Studio lets you upload, patch, and post directly from your mobile browser.</div></div>
         <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is my TikTok account safe?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The extension operates client-side. We use TikTok's official OAuth flow — your password is never visible to us.</div></div>
         <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Why join Telegram?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Our community is how we share updates and support users. Joining takes 10 seconds — it's the only requirement for a free toolset.</div></div>
         <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can I toggle features individually?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Yes. Every module has its own toggle in the floating panel. Settings persist across browser restarts.</div></div>
@@ -593,8 +591,8 @@ footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-
   <div class="wrap">
     <div class="footer-grid">
       <div><div class="fb-name">AetherEnhance</div><div class="fb-desc">The best free TikTok enhancement tool. Built for the community.</div></div>
-      <div class="fc-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#how">How it works</a></li><li><a href="patcher.html">Video Patcher</a></li><li><a href="https://chrome.google.com/webstore" target="_blank">Chrome Store</a></li></ul></div>
-      <div class="fc-col"><h4>Community</h4><ul><li><a href="https://t.me/AetherEnhanceGroup" target="_blank">Telegram Group</a></li><li><a href="https://t.me/aetherenhance_ch" target="_blank">Telegram Channel</a></li><li><a href="https://t.me/editing_haven" target="_blank">Editing Haven</a></li></ul></div>
+      <div class="fc-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#how">How it works</a></li><li><a href="patcherstudio.html">Video Patcher</a></li><li><a href="studio.html">Web Studio</a></li><li><a href="https://chrome.google.com/webstore" target="_blank">Chrome Store</a></li></ul></div>
+      <div class="fc-col"><h4>Community</h4><ul><li><a href="https://t.me/AetherEnhanceGroup" target="_blank">Telegram Group</a></li><li><a href="https://t.me/aetherenhance" target="_blank">Telegram Channel</a></li><li><a href="https://t.me/editing_haven" target="_blank">Editing Haven</a></li></ul></div>
       <div class="fc-col"><h4>Legal</h4><ul><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
     </div>
     <div class="footer-bottom"><span class="fcopy">© 2026 AetherEnhance</span></div>
@@ -618,7 +616,7 @@ function setTheme(dark) {
 setTheme(isDark);
 
 // ═══════════════════════════════════════
-// ARCHITECT TABS — Moonlight first (DEV_01), Kaizen second (DEV_02)
+// ARCHITECT TABS
 // ═══════════════════════════════════════
 document.querySelectorAll('.arch-tab').forEach(tab=>{
   tab.addEventListener('click',function(){
