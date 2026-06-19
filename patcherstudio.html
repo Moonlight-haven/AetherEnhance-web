@@ -6,7 +6,6 @@
   <meta name="tiktok-developers-site-verification" content="Jth5CgZbV2dN54unXAVN73MBBgf2PXGN" />
   <title>AetherEnhance Studio • Quality Bypass Engine</title>
 
-  <!-- Centralized API Configuration -->
   <script src="config.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -205,85 +204,19 @@
     .toast-notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface3);border:1px solid var(--border-active);padding:11px 22px;border-radius:9px;font-size:11px;font-weight:600;color:var(--white);z-index:400;transition:transform .3s cubic-bezier(.175,.885,.32,1.275);pointer-events:none;white-space:nowrap}
     .toast-notification.show{transform:translateX(-50%) translateY(0)}
 
-    /* Inline Patching Progress & Post-Patch Buttons */
-    .inline-patch-progress {
-      display: none;
-      margin-top: 12px;
-      width: 100%;
-    }
-    .inline-patch-progress.active {
-      display: block;
-    }
-    .inline-patch-bar {
-      width: 100%;
-      height: 4px;
-      background: var(--surface3);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    .inline-patch-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--tt-red), var(--tt-cyan));
-      border-radius: 2px;
-      transition: width 0.3s ease;
-    }
-    .inline-patch-text {
-      font-family: 'Geist Mono', monospace;
-      font-size: 10px;
-      color: var(--text-muted);
-      text-align: center;
-      letter-spacing: .04em;
-    }
-    .post-patch-actions {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 16px;
-      width: 100%;
-    }
-    .post-patch-actions.visible {
-      display: flex;
-    }
-    .post-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all .2s;
-      border: none;
-      color: white;
-    }
-    .post-btn-tiktok {
-      background: var(--tt-red);
-      box-shadow: 0 4px 24px var(--tt-red-dim);
-    }
-    .post-btn-tiktok:hover:not(:disabled) {
-      filter: brightness(1.08);
-      box-shadow: 0 6px 32px var(--tt-red-dim);
-    }
-    .post-btn-tiktok:disabled {
-      opacity: .3;
-      cursor: not-allowed;
-      filter: none;
-      box-shadow: none;
-    }
-    .post-btn-download {
-      background: var(--green);
-      box-shadow: 0 4px 24px rgba(0,204,102,0.25);
-    }
-    .post-btn-download:hover {
-      filter: brightness(1.08);
-      box-shadow: 0 6px 32px rgba(0,204,102,0.35);
-    }
+    .inline-patch-progress{display:none;margin-top:12px;width:100%}
+    .inline-patch-progress.active{display:block}
+    .inline-patch-bar{width:100%;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:8px}
+    .inline-patch-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--tt-red),var(--tt-cyan));border-radius:2px;transition:width .3s ease}
+    .inline-patch-text{font-family:'Geist Mono',monospace;font-size:10px;color:var(--text-muted);text-align:center;letter-spacing:.04em}
+    .post-patch-actions{display:none;flex-direction:column;gap:10px;margin-top:16px;width:100%}
+    .post-patch-actions.visible{display:flex}
+    .post-btn{width:100%;padding:14px;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;border:none;color:white}
+    .post-btn-tiktok{background:var(--tt-red);box-shadow:0 4px 24px var(--tt-red-dim)}
+    .post-btn-tiktok:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 6px 32px var(--tt-red-dim)}
+    .post-btn-tiktok:disabled{opacity:.3;cursor:not-allowed;filter:none;box-shadow:none}
+    .post-btn-download{background:var(--green);box-shadow:0 4px 24px rgba(0,204,102,.25)}
+    .post-btn-download:hover{filter:brightness(1.08);box-shadow:0 6px 32px rgba(0,204,102,.35)}
 
     @media(max-width:900px){.header-nav{display:none}.hamburger-btn{display:flex}.mobile-nav-dropdown{display:flex}.studio-body{flex-direction:column}.preview-panel{border-right:none;border-bottom:1px solid var(--border);min-height:auto;padding:16px}.preview-zone{max-height:300px;aspect-ratio:auto;height:260px}.preview-upload-icon{width:40px;height:40px}.preview-title{font-size:12px}.settings-panel{width:100%;max-height:none;position:static;padding:18px 14px}}
     @media(max-width:420px){.header-logo-text{display:none}.preview-zone{height:200px}}
@@ -291,7 +224,6 @@
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
 <div class="loading-screen" id="loading-screen">
   <div class="loading-orb loading-orb-1"></div>
   <div class="loading-orb loading-orb-2"></div>
@@ -302,7 +234,6 @@
   </div>
 </div>
 
-<!-- AUTH MODAL -->
 <div class="modal-overlay" id="auth-modal">
   <div class="modal-box">
     <div class="modal-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="var(--white)"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.03 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.33-.85.51-1.44 1.42-1.58 2.39-.16.81-.05 1.69.35 2.42.53.95 1.62 1.57 2.7 1.61.92.06 1.88-.21 2.62-.78.67-.54 1.06-1.39 1.07-2.25 0-4.55-.02-9.11-.05-13.66z"/></svg></div>
@@ -314,7 +245,6 @@
   </div>
 </div>
 
-<!-- UNLINK CONFIRMATION MODAL -->
 <div class="modal-overlay" id="unlink-modal">
   <div class="modal-box">
     <div class="modal-icon-wrap" style="background:rgba(254,44,85,0.1);border-color:var(--tt-red-dim);">
@@ -322,19 +252,15 @@
     </div>
     <div class="modal-title">Unlink Account</div>
     <div class="modal-subtitle">Are you sure you want to unlink your TikTok account? Type your display name below to confirm.</div>
-    <p style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--text-tertiary);margin-bottom:6px;">
-      Confirm: <strong style="color:var(--text-primary);" id="unlink-confirm-name">—</strong>
-    </p>
+    <p style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--text-tertiary);margin-bottom:6px;">Confirm: <strong style="color:var(--text-primary);" id="unlink-confirm-name">—</strong></p>
     <input type="text" class="unlink-verify-input" id="unlink-verify-input" placeholder="Type display name to confirm..." autocomplete="off">
     <button class="modal-btn-primary" id="unlink-confirm-btn" style="opacity:0.5;cursor:not-allowed;">Confirm Unlink</button>
     <button class="modal-btn-secondary" id="unlink-cancel-btn" style="margin-top:8px;">Cancel</button>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast-notification" id="toast-notification"></div>
 
-<!-- HEADER -->
 <header class="studio-header">
   <div class="header-left">
     <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -361,7 +287,6 @@
   </div>
 </header>
 
-<!-- MOBILE NAV -->
 <div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
   <a href="index.html" class="mobile-nav-item home-link">⌂ Home</a>
   <a href="studio.html" class="mobile-nav-item active">Studio</a>
@@ -372,7 +297,6 @@
   <a href="auto-captions.html" class="mobile-nav-item">Auto Captions</a>
 </div>
 
-<!-- MAIN -->
 <div class="studio-body">
   <div class="preview-panel">
     <div class="preview-container">
@@ -433,14 +357,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Optimize Video Quality
       </button>
-
-      <!-- Inline Patching Progress -->
       <div class="inline-patch-progress" id="inline-patch-progress">
         <div class="inline-patch-bar"><div class="inline-patch-bar-fill" id="inline-patch-bar-fill"></div></div>
         <div class="inline-patch-text" id="inline-patch-text">Initializing...</div>
       </div>
-
-      <!-- Post-Patch Actions -->
       <div class="post-patch-actions" id="post-patch-actions">
         <button class="post-btn post-btn-tiktok" id="post-tiktok-btn" disabled>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.03 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.33-.85.51-1.44 1.42-1.58 2.39-.16.81-.05 1.69.35 2.42.53.95 1.62 1.57 2.7 1.61.92.06 1.88-.21 2.62-.78.67-.54 1.06-1.39 1.07-2.25 0-4.55-.02-9.11-.05-13.66z"/></svg>
@@ -468,55 +388,21 @@
 
 <script>
 (function(){
-// ═══════════════════════════════════════
-// READ CONFIG FROM CENTRALIZED config.js
-// ═══════════════════════════════════════
 const API = window.AETHER_API_CONFIG;
-if (!API) {
-  alert('Configuration missing! Please ensure config.js is loaded before this page.');
-  return;
-}
-
-// ═══════════════════════════════════════
-// GLOBAL OPTIMIZED STREAM STORAGE
-// ═══════════════════════════════════════
+if (!API) { alert('Configuration missing! Please ensure config.js is loaded before this page.'); return; }
 window.AETHER_OPTIMIZED_BLOB = null;
-
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-const state = {
-  isAuthorized: false,
-  accessToken: null,
-  userInfo: null,
-  videoFile: null,
-  videoUrl: null,
-  videoMetadata: null,
-  isPlaying: false,
-  isOptimized: false,
-  selectedMentions: [],
-  selectedLocation: null
-};
-
+const state = { isAuthorized: false, accessToken: null, userInfo: null, videoFile: null, videoUrl: null, videoMetadata: null, isPlaying: false, isOptimized: false, selectedMentions: [], selectedLocation: null };
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-// ═══════════════════════════════════════
-// LOADING SCREEN
-// ═══════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => { $('#loading-screen').classList.add('hidden'); }, 2000);
-});
+window.addEventListener('DOMContentLoaded', () => { setTimeout(() => { $('#loading-screen').classList.add('hidden'); }, 2000); });
 
-// ═══════════════════════════════════════
-// THEME TOGGLE
-// ═══════════════════════════════════════
+// Theme
 const themeBtn = document.getElementById('theme-toggle-btn');
 let isDark = localStorage.getItem('aether-theme') === null ? true : localStorage.getItem('aether-theme') === 'dark';
 function setTheme(dark) {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  const sunIcon = document.getElementById('sun-icon');
-  const moonIcon = document.getElementById('moon-icon');
+  const sunIcon = document.getElementById('sun-icon'); const moonIcon = document.getElementById('moon-icon');
   if (sunIcon) sunIcon.style.display = dark ? 'block' : 'none';
   if (moonIcon) moonIcon.style.display = dark ? 'none' : 'block';
   localStorage.setItem('aether-theme', dark ? 'dark' : 'light');
@@ -524,142 +410,56 @@ function setTheme(dark) {
 if (themeBtn) themeBtn.addEventListener('click', () => { isDark = !isDark; setTheme(isDark); });
 setTheme(isDark);
 
-// ═══════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════
+// Toast
 let toastTimer;
-function showToast(msg, duration = 2800) {
-  clearTimeout(toastTimer);
-  const el = $('#toast-notification');
-  el.textContent = msg;
-  el.classList.add('show');
-  toastTimer = setTimeout(() => el.classList.remove('show'), duration);
-}
+function showToast(msg, duration = 2800) { clearTimeout(toastTimer); const el = $('#toast-notification'); el.textContent = msg; el.classList.add('show'); toastTimer = setTimeout(() => el.classList.remove('show'), duration); }
 
-// ═══════════════════════════════════════
-// PKCE UTILITIES
-// ═══════════════════════════════════════
-function generateCodeVerifier() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  const array = new Uint8Array(64);
-  window.crypto.getRandomValues(array);
-  let verifier = '';
-  for (let i = 0; i < array.length; i++) { verifier += chars[array[i] % chars.length]; }
-  return verifier;
-}
-async function generateCodeChallenge(verifier) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  let base64 = btoa(String.fromCharCode.apply(null, hashArray));
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
+// PKCE
+function generateCodeVerifier() { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'; const array = new Uint8Array(64); window.crypto.getRandomValues(array); let verifier = ''; for (let i = 0; i < array.length; i++) { verifier += chars[array[i] % chars.length]; } return verifier; }
+async function generateCodeChallenge(verifier) { const encoder = new TextEncoder(); const data = encoder.encode(verifier); const hashBuffer = await window.crypto.subtle.digest('SHA-256', data); const hashArray = Array.from(new Uint8Array(hashBuffer)); let base64 = btoa(String.fromCharCode.apply(null, hashArray)); return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
 
-// ═══════════════════════════════════════
-// AUTH MODAL + PKCE OAUTH FLOW
-// ═══════════════════════════════════════
+// Auth
 const authModal = $('#auth-modal');
-if (!sessionStorage.getItem('studio-auth-dismissed')) {
-  setTimeout(() => authModal.classList.add('active'), 2500);
-}
+if (!sessionStorage.getItem('studio-auth-dismissed')) { setTimeout(() => authModal.classList.add('active'), 2500); }
 
 async function openTikTokAuthPopup() {
   authModal.classList.remove('active');
-  
   const codeVerifier = generateCodeVerifier();
   localStorage.setItem('tiktok_code_verifier', codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
-  
   const SCOPES = "user.info.basic";
-  
-  const authUrl = "https://www.tiktok.com/v2/auth/authorize/" +
-    "?client_key=" + encodeURIComponent(API.CLIENT_KEY) +
-    "&scope=" + SCOPES +
-    "&response_type=code" +
-    "&redirect_uri=" + encodeURIComponent(API.REDIRECT_URI) +
-    "&code_challenge=" + encodeURIComponent(codeChallenge) +
-    "&code_challenge_method=S256";
-  
+  const authUrl = "https://www.tiktok.com/v2/auth/authorize/" + "?client_key=" + encodeURIComponent(API.CLIENT_KEY) + "&scope=" + SCOPES + "&response_type=code" + "&redirect_uri=" + encodeURIComponent(API.REDIRECT_URI) + "&code_challenge=" + encodeURIComponent(codeChallenge) + "&code_challenge_method=S256";
   const w = 500, h = 700;
   const popup = window.open(authUrl, 'tiktokAuth', `width=${w},height=${h},left=${(screen.width-w)/2},top=${(screen.height-h)/2}`);
-  
   if (!popup) { showToast('⚠ Please allow popups'); return; }
   showToast('🔐 Waiting for TikTok authorization...');
-  
-  const pollTimer = setInterval(() => {
-    try { 
-      if (popup.location.href.includes(API.REDIRECT_URI)) { 
-        clearInterval(pollTimer); 
-        const code = new URL(popup.location.href).searchParams.get('code'); 
-        popup.close(); 
-        if (code) exchangeTokenWithPKCE(code); 
-      } 
-    } catch(e) {}
-    if (popup.closed) clearInterval(pollTimer);
-  }, 500);
-  
-  window.addEventListener('message', function pkceHandler(e) {
-    if (e.origin !== window.location.origin) return;
-    if (e.data?.code) { 
-      window.removeEventListener('message', pkceHandler); 
-      clearInterval(pollTimer); 
-      if (popup && !popup.closed) popup.close(); 
-      exchangeTokenWithPKCE(e.data.code); 
-    }
-  });
+  const pollTimer = setInterval(() => { try { if (popup.location.href.includes(API.REDIRECT_URI)) { clearInterval(pollTimer); const code = new URL(popup.location.href).searchParams.get('code'); popup.close(); if (code) exchangeTokenWithPKCE(code); } } catch(e) {} if (popup.closed) clearInterval(pollTimer); }, 500);
+  window.addEventListener('message', function pkceHandler(e) { if (e.origin !== window.location.origin) return; if (e.data?.code) { window.removeEventListener('message', pkceHandler); clearInterval(pollTimer); if (popup && !popup.closed) popup.close(); exchangeTokenWithPKCE(e.data.code); } });
 }
 
 async function exchangeTokenWithPKCE(code) {
   const codeVerifier = localStorage.getItem('tiktok_code_verifier');
   if (!codeVerifier) { showToast('⚠ PKCE verifier missing'); return; }
   try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/exchange-token`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, code_verifier: codeVerifier })
-    });
+    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/exchange-token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, code_verifier: codeVerifier }) });
     if (res.ok) {
       const data = await res.json();
       localStorage.removeItem('tiktok_code_verifier');
       setAuthorized(data.access_token, data.user_info || null);
       fetchUserProfile(data.access_token);
-    } else {
-      const errData = await res.json().catch(() => ({}));
-      showToast('⚠ Auth failed: ' + (errData.error || 'Unknown error'));
-      localStorage.removeItem('tiktok_code_verifier');
-    }
-  } catch (err) {
-    showToast('⚠ Connection error. Is the backend running?');
-    console.error('Token exchange error:', err);
-    const sandboxUser = { display_name: 'DevUser', username: 'sandbox_user', avatar_url: '' };
-    setAuthorized('sandbox_' + crypto.randomUUID(), sandboxUser);
-    localStorage.removeItem('tiktok_code_verifier');
-  }
+    } else { const errData = await res.json().catch(() => ({})); showToast('⚠ Auth failed: ' + (errData.error || 'Unknown error')); localStorage.removeItem('tiktok_code_verifier'); }
+  } catch (err) { showToast('⚠ Connection error. Is the backend running?'); console.error('Token exchange error:', err); localStorage.removeItem('tiktok_code_verifier'); }
 }
 
-// ═══════════════════════════════════════
-// FETCH USER PROFILE
-// ═══════════════════════════════════════
 async function fetchUserProfile(token) {
   try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token })
-    });
-    if (res.ok) {
-      const profile = await res.json();
-      state.userInfo = { ...state.userInfo, ...profile };
-      updateProfileUI(profile);
-    }
-  } catch (err) {
-    console.log('Userinfo fetch skipped');
-  }
+    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ access_token: token }) });
+    if (res.ok) { const profile = await res.json(); state.userInfo = { ...state.userInfo, ...profile }; updateProfileUI(profile); }
+  } catch (err) { console.log('Userinfo fetch skipped'); }
 }
+
 function updateProfileUI(profile) {
-  if (profile.display_name) {
-    $('#account-name-display').textContent = profile.display_name;
-  }
+  if (profile.display_name) { $('#account-name-display').textContent = profile.display_name; }
   if (profile.avatar_url) {
     const avatarImg = `<img src="${profile.avatar_url}" alt="${profile.display_name || 'User'}" onerror="this.style.display='none'">`;
     $('#account-avatar-icon').innerHTML = avatarImg;
@@ -675,137 +475,59 @@ const urlParams = new URLSearchParams(window.location.search);
 const authCode = urlParams.get('code');
 if (authCode) { window.history.replaceState({}, document.title, window.location.pathname); exchangeTokenWithPKCE(authCode); }
 
-// ═══════════════════════════════════════
-// AUTH STATE MANAGEMENT
-// ═══════════════════════════════════════
 function setAuthorized(token, userInfo = null) {
-  state.isAuthorized = true;
-  state.accessToken = token;
+  state.isAuthorized = true; state.accessToken = token;
   state.userInfo = userInfo || { display_name: 'Authorized User', username: 'tiktok_user' };
-  updateAuthUI();
-  sessionStorage.setItem('studio-authorized', 'true');
+  updateAuthUI(); sessionStorage.setItem('studio-authorized', 'true');
   showToast('✓ TikTok authorized successfully');
 }
 function unlinkTikTokAccount() {
-  state.isAuthorized = false;
-  state.accessToken = null;
-  state.userInfo = null;
-  updateAuthUI();
-  sessionStorage.removeItem('studio-authorized');
-  sessionStorage.removeItem('studio-auth-dismissed');
+  state.isAuthorized = false; state.accessToken = null; state.userInfo = null; updateAuthUI();
+  sessionStorage.removeItem('studio-authorized'); sessionStorage.removeItem('studio-auth-dismissed');
   $('#account-avatar-icon').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
   $('#header-avatar-placeholder').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
-  $('#header-upload-btn').disabled = true;
-  $('#main-upload-btn').disabled = true;
+  $('#header-upload-btn').disabled = true; $('#main-upload-btn').disabled = true;
   showToast('TikTok account unlinked');
 }
 function updateAuthUI() {
-  const badge = $('#connection-badge');
-  const label = $('#connection-label');
-  const nameEl = $('#account-name-display');
-  const statusEl = $('#account-status-display');
-  const unlinkBtn = $('#unlink-btn');
-  const connectBtn = $('#connect-btn');
+  const badge = $('#connection-badge'); const label = $('#connection-label');
+  const nameEl = $('#account-name-display'); const statusEl = $('#account-status-display');
+  const unlinkBtn = $('#unlink-btn'); const connectBtn = $('#connect-btn');
   if (state.isAuthorized) {
-    badge.classList.add('connected');
-    label.textContent = 'Authorized';
+    badge.classList.add('connected'); label.textContent = 'Authorized';
     nameEl.textContent = state.userInfo?.display_name || state.userInfo?.username || 'Authorized';
-    statusEl.textContent = 'Authorized • Active';
-    statusEl.className = 'account-status-text connected';
-    unlinkBtn.style.display = 'inline-block';
-    connectBtn.style.display = 'none';
-    if (state.videoFile && state.isOptimized) {
-      $('#header-upload-btn').disabled = false;
-      $('#post-tiktok-btn').disabled = false;
-    }
+    statusEl.textContent = 'Authorized • Active'; statusEl.className = 'account-status-text connected';
+    unlinkBtn.style.display = 'inline-block'; connectBtn.style.display = 'none';
+    if (state.videoFile && state.isOptimized) { $('#header-upload-btn').disabled = false; $('#post-tiktok-btn').disabled = false; }
   } else {
-    badge.classList.remove('connected');
-    label.textContent = 'Not Authorized';
-    nameEl.textContent = 'Guest';
-    statusEl.textContent = 'Not authorized';
-    statusEl.className = 'account-status-text disconnected';
-    unlinkBtn.style.display = 'none';
-    connectBtn.style.display = 'inline-block';
-    $('#header-upload-btn').disabled = true;
-    $('#post-tiktok-btn').disabled = true;
+    badge.classList.remove('connected'); label.textContent = 'Not Authorized';
+    nameEl.textContent = 'Guest'; statusEl.textContent = 'Not authorized'; statusEl.className = 'account-status-text disconnected';
+    unlinkBtn.style.display = 'none'; connectBtn.style.display = 'inline-block';
+    $('#header-upload-btn').disabled = true; $('#post-tiktok-btn').disabled = true;
   }
 }
 
-// ═══════════════════════════════════════
-// SECURE UNLINK CONFIRMATION MODAL
-// ═══════════════════════════════════════
-const unlinkModal = $('#unlink-modal');
-const unlinkVerifyInput = $('#unlink-verify-input');
-const unlinkConfirmBtn = $('#unlink-confirm-btn');
-const unlinkConfirmName = $('#unlink-confirm-name');
-
+// Unlink modal
+const unlinkModal = $('#unlink-modal'); const unlinkVerifyInput = $('#unlink-verify-input'); const unlinkConfirmBtn = $('#unlink-confirm-btn'); const unlinkConfirmName = $('#unlink-confirm-name');
 $('#unlink-btn').addEventListener('click', function(e) {
   e.preventDefault(); e.stopPropagation();
   const currentName = state.userInfo?.display_name || state.userInfo?.username || 'Unknown';
-  unlinkConfirmName.textContent = currentName;
-  unlinkVerifyInput.value = '';
-  unlinkConfirmBtn.style.opacity = '0.5';
-  unlinkConfirmBtn.style.cursor = 'not-allowed';
-  unlinkModal.classList.add('active');
+  unlinkConfirmName.textContent = currentName; unlinkVerifyInput.value = ''; unlinkConfirmBtn.style.opacity = '0.5'; unlinkConfirmBtn.style.cursor = 'not-allowed'; unlinkModal.classList.add('active');
 });
-unlinkVerifyInput.addEventListener('input', function() {
-  const currentName = state.userInfo?.display_name || state.userInfo?.username || '';
-  if (this.value.trim() === currentName) {
-    unlinkConfirmBtn.style.opacity = '1';
-    unlinkConfirmBtn.style.cursor = 'pointer';
-  } else {
-    unlinkConfirmBtn.style.opacity = '0.5';
-    unlinkConfirmBtn.style.cursor = 'not-allowed';
-  }
-});
-$('#unlink-confirm-btn').addEventListener('click', function() {
-  const currentName = state.userInfo?.display_name || state.userInfo?.username || '';
-  if (unlinkVerifyInput.value.trim() === currentName) {
-    unlinkModal.classList.remove('active');
-    unlinkTikTokAccount();
-  } else {
-    showToast('⚠ Username verification failed');
-  }
-});
+unlinkVerifyInput.addEventListener('input', function() { const currentName = state.userInfo?.display_name || state.userInfo?.username || ''; if (this.value.trim() === currentName) { unlinkConfirmBtn.style.opacity = '1'; unlinkConfirmBtn.style.cursor = 'pointer'; } else { unlinkConfirmBtn.style.opacity = '0.5'; unlinkConfirmBtn.style.cursor = 'not-allowed'; } });
+$('#unlink-confirm-btn').addEventListener('click', function() { const currentName = state.userInfo?.display_name || state.userInfo?.username || ''; if (unlinkVerifyInput.value.trim() === currentName) { unlinkModal.classList.remove('active'); unlinkTikTokAccount(); } else { showToast('⚠ Username verification failed'); } });
 $('#unlink-cancel-btn').addEventListener('click', () => { unlinkModal.classList.remove('active'); });
-
-if (sessionStorage.getItem('studio-authorized') === 'true') {
-  state.isAuthorized = true;
-  state.accessToken = 'restored_session_token';
-  state.userInfo = { display_name: 'Restored User', username: 'tiktok_user' };
-}
+if (sessionStorage.getItem('studio-authorized') === 'true') { state.isAuthorized = true; state.accessToken = 'restored_session_token'; state.userInfo = { display_name: 'Restored User', username: 'tiktok_user' }; }
 updateAuthUI();
 
-// ═══════════════════════════════════════
-// METADATA LOCKING
-// ═══════════════════════════════════════
-function setMetadataFieldsDisabled(disabled) {
-  $('#caption-input').disabled = disabled;
-  $('#privacy-select').disabled = disabled;
-  $('#mention-search').disabled = disabled;
-  $('#location-search').disabled = disabled;
-  $('#disable-comment').disabled = disabled;
-  $('#disable-duet').disabled = disabled;
-  $('#disable-stitch').disabled = disabled;
-}
+function setMetadataFieldsDisabled(disabled) { $('#caption-input').disabled = disabled; $('#privacy-select').disabled = disabled; $('#mention-search').disabled = disabled; $('#location-search').disabled = disabled; $('#disable-comment').disabled = disabled; $('#disable-duet').disabled = disabled; $('#disable-stitch').disabled = disabled; }
 setMetadataFieldsDisabled(true);
 
-// ═══════════════════════════════════════
-// MOBILE NAV
-// ═══════════════════════════════════════
 $('#hamburger-btn').addEventListener('click', () => $('#mobile-nav-dropdown').classList.toggle('open'));
-document.addEventListener('click', (e) => {
-  if (!$('#hamburger-btn').contains(e.target) && !$('#mobile-nav-dropdown').contains(e.target)) {
-    $('#mobile-nav-dropdown').classList.remove('open');
-  }
-});
+document.addEventListener('click', (e) => { if (!$('#hamburger-btn').contains(e.target) && !$('#mobile-nav-dropdown').contains(e.target)) { $('#mobile-nav-dropdown').classList.remove('open'); } });
 
-// ═══════════════════════════════════════
-// FILE UPLOAD & VIDEO INSPECTION
-// ═══════════════════════════════════════
-const previewZone = $('#preview-zone');
-const previewVideo = $('#preview-video');
-const fileInput = $('#file-input');
+// File upload
+const previewZone = $('#preview-zone'); const previewVideo = $('#preview-video'); const fileInput = $('#file-input');
 function triggerFileInput() { fileInput.click(); }
 $('#preview-select-btn').addEventListener('click', (e) => { e.stopPropagation(); triggerFileInput(); });
 previewZone.addEventListener('click', (e) => { if (!state.videoFile) triggerFileInput(); });
@@ -813,91 +535,35 @@ $('#change-video-btn').addEventListener('click', (e) => { e.stopPropagation(); t
 fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
 previewZone.addEventListener('dragover', (e) => { e.preventDefault(); previewZone.style.borderColor = 'var(--tt-red)'; });
 previewZone.addEventListener('dragleave', () => { previewZone.style.borderColor = state.videoFile ? 'var(--border-light)' : 'var(--border)'; });
-previewZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  previewZone.style.borderColor = state.videoFile ? 'var(--border-light)' : 'var(--border)';
-  if (e.dataTransfer.files[0]?.type.startsWith('video/')) handleVideoFile(e.dataTransfer.files[0]);
-});
+previewZone.addEventListener('drop', (e) => { e.preventDefault(); previewZone.style.borderColor = state.videoFile ? 'var(--border-light)' : 'var(--border)'; if (e.dataTransfer.files[0]?.type.startsWith('video/')) handleVideoFile(e.dataTransfer.files[0]); });
 function handleVideoFile(file) {
   if (!file.type.startsWith('video/')) return showToast('⚠ Please select a video file');
   if (file.size > 500 * 1024 * 1024) return showToast('⚠ File must be under 500 MB');
-  state.videoFile = file;
-  state.videoUrl = URL.createObjectURL(file);
-  state.isOptimized = false;
-  window.AETHER_OPTIMIZED_BLOB = null;
-  previewVideo.src = state.videoUrl;
-  $('#preview-placeholder').style.display = 'none';
-  $('#video-preview-wrap').classList.add('active');
-  previewZone.classList.add('has-video');
-  setMetadataFieldsDisabled(true);
-  $('#main-upload-btn').disabled = false;
-  $('#header-upload-btn').disabled = true;
-  $('#post-patch-actions').classList.remove('visible');
-  $('#inline-patch-progress').classList.remove('active');
-  resetOptimizeButton();
-  inspectVideoMedia(file);
+  state.videoFile = file; state.videoUrl = URL.createObjectURL(file); state.isOptimized = false; window.AETHER_OPTIMIZED_BLOB = null;
+  previewVideo.src = state.videoUrl; $('#preview-placeholder').style.display = 'none'; $('#video-preview-wrap').classList.add('active'); previewZone.classList.add('has-video');
+  setMetadataFieldsDisabled(true); $('#main-upload-btn').disabled = false; $('#header-upload-btn').disabled = true;
+  $('#post-patch-actions').classList.remove('visible'); $('#inline-patch-progress').classList.remove('active');
+  resetOptimizeButton(); inspectVideoMedia(file);
   previewVideo.play().then(() => { state.isPlaying = true; updatePlayPauseIcon(); }).catch(() => {});
 }
-function resetOptimizeButton() {
-  const btn = $('#main-upload-btn');
-  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Optimize Video Quality';
-  btn.style.background = 'var(--white)';
-  btn.style.color = 'var(--bg)';
-}
+function resetOptimizeButton() { const btn = $('#main-upload-btn'); btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Optimize Video Quality'; btn.style.background = 'var(--white)'; btn.style.color = 'var(--bg)'; }
 async function inspectVideoMedia(file) {
-  $('#status-section').style.display = 'block';
-  const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-  $('#stat-size').textContent = sizeMB + ' MB';
-  updateBadge('stat-size-status', sizeMB <= 500, '✓ OK', '⚠ Large');
-  const mime = file.type;
-  let codec = mime.includes('mp4') || mime.includes('quicktime') ? 'H.264 (AVC)' : mime.includes('webm') ? 'VP9' : 'Unknown';
-  $('#stat-codec').textContent = codec;
-  updateBadge('stat-codec-status', codec.includes('H.264'), '✓ Optimal', 'Will convert');
+  $('#status-section').style.display = 'block'; const sizeMB = (file.size / (1024 * 1024)).toFixed(1); $('#stat-size').textContent = sizeMB + ' MB'; updateBadge('stat-size-status', sizeMB <= 500, '✓ OK', '⚠ Large');
+  const mime = file.type; let codec = mime.includes('mp4') || mime.includes('quicktime') ? 'H.264 (AVC)' : mime.includes('webm') ? 'VP9' : 'Unknown'; $('#stat-codec').textContent = codec; updateBadge('stat-codec-status', codec.includes('H.264'), '✓ Optimal', 'Will convert');
   const video = previewVideo;
-  await new Promise((resolve) => {
-    if (video.readyState >= 1) resolve();
-    else video.addEventListener('loadedmetadata', resolve, { once: true });
-  });
-  const w = video.videoWidth, h = video.videoHeight;
-  $('#stat-res').textContent = (w && h) ? w + '×' + h : 'Unknown';
-  updateBadge('stat-res-status', h >= 1080 || w >= 1920, '✓ Optimal', 'Low res');
+  await new Promise((resolve) => { if (video.readyState >= 1) resolve(); else video.addEventListener('loadedmetadata', resolve, { once: true }); });
+  const w = video.videoWidth, h = video.videoHeight; $('#stat-res').textContent = (w && h) ? w + '×' + h : 'Unknown'; updateBadge('stat-res-status', h >= 1080 || w >= 1920, '✓ Optimal', 'Low res');
   const dur = video.duration;
-  if (dur && isFinite(dur)) {
-    const min = Math.floor(dur / 60), sec = Math.floor(dur % 60);
-    $('#stat-duration').textContent = min + ':' + sec.toString().padStart(2, '0');
-    updateBadge('stat-duration-status', dur <= 600, '✓ OK', 'Too long');
-  } else {
-    $('#stat-duration').textContent = '—';
-    updateBadge('stat-duration-status', true, '—', '');
-  }
-  if (dur && isFinite(dur) && dur > 0) {
-    const bitrateMbps = ((file.size * 8) / (dur * 1000000)).toFixed(1);
-    $('#stat-bitrate').textContent = bitrateMbps + ' Mbps';
-    updateBadge('stat-bitrate-status', parseFloat(bitrateMbps) >= 5, '✓ Optimal', 'Low');
-  } else {
-    const estBitrate = ((file.size * 8) / (10 * 1000000)).toFixed(1);
-    $('#stat-bitrate').textContent = estBitrate + ' Mbps (est)';
-    updateBadge('stat-bitrate-status', parseFloat(estBitrate) >= 5, '✓ Optimal', 'Low');
-  }
-  $('#stat-fps').textContent = '—';
-  updateBadge('stat-fps-status', false, '', 'Pending');
-  $('#stat-fps-status').className = 'status-indicator amber';
+  if (dur && isFinite(dur)) { const min = Math.floor(dur / 60), sec = Math.floor(dur % 60); $('#stat-duration').textContent = min + ':' + sec.toString().padStart(2, '0'); updateBadge('stat-duration-status', dur <= 600, '✓ OK', 'Too long'); }
+  else { $('#stat-duration').textContent = '—'; updateBadge('stat-duration-status', true, '—', ''); }
+  if (dur && isFinite(dur) && dur > 0) { const bitrateMbps = ((file.size * 8) / (dur * 1000000)).toFixed(1); $('#stat-bitrate').textContent = bitrateMbps + ' Mbps'; updateBadge('stat-bitrate-status', parseFloat(bitrateMbps) >= 5, '✓ Optimal', 'Low'); }
+  else { const estBitrate = ((file.size * 8) / (10 * 1000000)).toFixed(1); $('#stat-bitrate').textContent = estBitrate + ' Mbps (est)'; updateBadge('stat-bitrate-status', parseFloat(estBitrate) >= 5, '✓ Optimal', 'Low'); }
+  $('#stat-fps').textContent = '—'; updateBadge('stat-fps-status', false, '', 'Pending'); $('#stat-fps-status').className = 'status-indicator amber';
   state.videoMetadata = { sizeMB, resolution: $('#stat-res').textContent, duration: dur, codec };
 }
-function updateBadge(id, isGood, goodText, badText) {
-  const el = $('#' + id);
-  if (!el) return;
-  el.textContent = isGood ? goodText : badText;
-  el.className = 'status-indicator ' + (isGood ? 'green' : (badText === '⚠ Large' || badText === 'Too long' || badText === 'Pending' ? 'amber' : 'red'));
-}
+function updateBadge(id, isGood, goodText, badText) { const el = $('#' + id); if (!el) return; el.textContent = isGood ? goodText : badText; el.className = 'status-indicator ' + (isGood ? 'green' : (badText === '⚠ Large' || badText === 'Too long' || badText === 'Pending' ? 'amber' : 'red')); }
 
-// ═══════════════════════════════════════
-// VIDEO CONTROLS
-// ═══════════════════════════════════════
-function updatePlayPauseIcon() {
-  $('#play-icon').style.display = state.isPlaying ? 'none' : 'block';
-  $('#pause-icon').style.display = state.isPlaying ? 'block' : 'none';
-}
+function updatePlayPauseIcon() { $('#play-icon').style.display = state.isPlaying ? 'none' : 'block'; $('#pause-icon').style.display = state.isPlaying ? 'block' : 'none'; }
 $('#play-pause-btn').addEventListener('click', (e) => { e.stopPropagation(); state.isPlaying ? previewVideo.pause() : previewVideo.play(); state.isPlaying = !state.isPlaying; updatePlayPauseIcon(); });
 previewVideo.addEventListener('play', () => { state.isPlaying = true; updatePlayPauseIcon(); });
 previewVideo.addEventListener('pause', () => { state.isPlaying = false; updatePlayPauseIcon(); });
@@ -905,194 +571,46 @@ previewVideo.addEventListener('click', () => { state.isPlaying ? previewVideo.pa
 $('#mute-btn').addEventListener('click', (e) => { e.stopPropagation(); previewVideo.muted = !previewVideo.muted; $('#unmute-icon').style.display = previewVideo.muted ? 'none' : 'block'; $('#mute-icon-el').style.display = previewVideo.muted ? 'block' : 'none'; });
 $('#fullscreen-btn').addEventListener('click', (e) => { e.stopPropagation(); previewVideo.requestFullscreen?.(); });
 
-// ═══════════════════════════════════════
-// CAPTION + @ MENTION SEARCH
-// ═══════════════════════════════════════
 const captionInput = $('#caption-input');
-captionInput.addEventListener('input', () => {
-  const len = captionInput.value.length;
-  $('#char-count').textContent = len + ' / 2,200';
-  $('#char-count').style.color = len > 2000 ? 'var(--tt-red)' : 'var(--text-tertiary)';
-  const val = captionInput.value;
-  const cursorPos = captionInput.selectionStart;
-  const textBeforeCursor = val.substring(0, cursorPos);
-  const atMatch = textBeforeCursor.match(/@(\w*)$/);
-  if (atMatch && state.isOptimized) {
-    debounce('caption-mention', () => searchCreators(atMatch[1]), 300);
-  } else {
-    $('#mention-results').classList.remove('active');
-  }
-});
-async function searchCreators(query) {
-  if (!query) { $('#mention-results').classList.remove('active'); return; }
-  try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/search-creator`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, access_token: state.accessToken })
-    });
-    let users = [];
-    if (res.ok) { const data = await res.json(); users = data.creators || data.users || []; }
-    if (users.length === 0) {
-      users = [
-        { username: query + '_creator', display_name: query.charAt(0).toUpperCase() + query.slice(1) + ' Creator' },
-        { username: 'official_' + query, display_name: 'Official ' + query }
-      ];
-    }
-    const results = $('#mention-results');
-    results.innerHTML = users.map(u => `
-      <div class="dropdown-item" data-username="${u.username}">
-        <div class="dropdown-item-avatar"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-        <div><div style="font-weight:600;color:var(--text-primary)">${u.display_name || u.username}</div><div style="font-size:9px;color:var(--text-tertiary)">@${u.username}</div></div>
-      </div>
-    `).join('');
-    results.classList.add('active');
-    results.querySelectorAll('.dropdown-item').forEach(item => {
-      item.addEventListener('click', function() {
-        const username = this.dataset.username;
-        const val = captionInput.value;
-        const cursorPos = captionInput.selectionStart;
-        const textBefore = val.substring(0, cursorPos);
-        const textAfter = val.substring(cursorPos);
-        const updatedBefore = textBefore.replace(/@\w*$/, '@' + username + ' ');
-        captionInput.value = updatedBefore + textAfter;
-        captionInput.focus();
-        captionInput.dispatchEvent(new Event('input'));
-        results.classList.remove('active');
-        showToast('✓ @' + username + ' mentioned');
-      });
-    });
-  } catch (err) { console.log('Mention search fallback:', err.message); }
-}
-window.insertText = function(text) {
-  const c = captionInput, pos = c.selectionStart;
-  const before = c.value.substring(0, pos), after = c.value.substring(pos);
-  const sep = (before.endsWith(' ') || before.length === 0) ? '' : ' ';
-  c.value = before + sep + text + ' ' + after;
-  c.focus(); c.dispatchEvent(new Event('input'));
-};
-
-// ═══════════════════════════════════════
-// DEBOUNCED SEARCH
-// ═══════════════════════════════════════
+captionInput.addEventListener('input', () => { const len = captionInput.value.length; $('#char-count').textContent = len + ' / 2,200'; $('#char-count').style.color = len > 2000 ? 'var(--tt-red)' : 'var(--text-tertiary)'; const val = captionInput.value; const cursorPos = captionInput.selectionStart; const textBeforeCursor = val.substring(0, cursorPos); const atMatch = textBeforeCursor.match(/@(\w*)$/); if (atMatch && state.isOptimized) { debounce('caption-mention', () => searchCreators(atMatch[1]), 300); } else { $('#mention-results').classList.remove('active'); } });
+async function searchCreators(query) { if (!query) { $('#mention-results').classList.remove('active'); return; } try { const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/search-creator`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, access_token: state.accessToken }) }); let users = []; if (res.ok) { const data = await res.json(); users = data.creators || data.users || []; } if (users.length === 0) { users = [{ username: query + '_creator', display_name: query.charAt(0).toUpperCase() + query.slice(1) + ' Creator' }, { username: 'official_' + query, display_name: 'Official ' + query }]; } const results = $('#mention-results'); results.innerHTML = users.map(u => `<div class="dropdown-item" data-username="${u.username}"><div class="dropdown-item-avatar"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div><div style="font-weight:600;color:var(--text-primary)">${u.display_name || u.username}</div><div style="font-size:9px;color:var(--text-tertiary)">@${u.username}</div></div></div>`).join(''); results.classList.add('active'); results.querySelectorAll('.dropdown-item').forEach(item => { item.addEventListener('click', function() { const username = this.dataset.username; const val = captionInput.value; const cursorPos = captionInput.selectionStart; const textBefore = val.substring(0, cursorPos); const textAfter = val.substring(cursorPos); const updatedBefore = textBefore.replace(/@\w*$/, '@' + username + ' '); captionInput.value = updatedBefore + textAfter; captionInput.focus(); captionInput.dispatchEvent(new Event('input')); results.classList.remove('active'); showToast('✓ @' + username + ' mentioned'); }); }); } catch (err) { console.log('Mention search fallback:', err.message); } }
+window.insertText = function(text) { const c = captionInput, pos = c.selectionStart; const before = c.value.substring(0, pos), after = c.value.substring(pos); const sep = (before.endsWith(' ') || before.length === 0) ? '' : ' '; c.value = before + sep + text + ' ' + after; c.focus(); c.dispatchEvent(new Event('input')); };
 const debounceTimers = {};
 function debounce(key, fn, delay = 300) { clearTimeout(debounceTimers[key]); debounceTimers[key] = setTimeout(fn, delay); }
 window.focusSearch = function(type) { const input = $('#' + type + '-search'); input.style.display = 'block'; input.focus(); };
-$('#mention-search').addEventListener('input', function() {
-  const query = this.value.trim();
-  if (!query) { $('#mention-results').classList.remove('active'); return; }
-  debounce('mention', () => searchCreators(query), 300);
-});
-$('#location-search').addEventListener('input', function() {
-  const query = this.value.trim();
-  const results = $('#location-results');
-  if (!query) { results.classList.remove('active'); return; }
-  debounce('location', async () => {
-    let locations = [{ id: 'loc_1', name: query + ' City Center' }];
-    results.innerHTML = locations.map(l => `<div class="dropdown-item" data-loc-name="${l.name}"><span style="font-size:14px">📍</span><span style="font-weight:500">${l.name}</span></div>`).join('');
-    results.classList.add('active');
-    results.querySelectorAll('.dropdown-item').forEach(item => { item.addEventListener('click', function() { const name = this.dataset.locName; state.selectedLocation = { name }; insertText('📍' + name); $('#location-search').value = ''; $('#location-search').style.display = 'none'; results.classList.remove('active'); showToast('📍 Location set: ' + name); }); });
-  }, 300);
-});
-document.addEventListener('click', (e) => {
-  if (!$('#mention-search').contains(e.target) && !$('#mention-results').contains(e.target)) $('#mention-results').classList.remove('active');
-  if (!$('#location-search').contains(e.target) && !$('#location-results').contains(e.target)) $('#location-results').classList.remove('active');
-});
+$('#mention-search').addEventListener('input', function() { const query = this.value.trim(); if (!query) { $('#mention-results').classList.remove('active'); return; } debounce('mention', () => searchCreators(query), 300); });
+$('#location-search').addEventListener('input', function() { const query = this.value.trim(); const results = $('#location-results'); if (!query) { results.classList.remove('active'); return; } debounce('location', async () => { let locations = [{ id: 'loc_1', name: query + ' City Center' }]; results.innerHTML = locations.map(l => `<div class="dropdown-item" data-loc-name="${l.name}"><span style="font-size:14px">📍</span><span style="font-weight:500">${l.name}</span></div>`).join(''); results.classList.add('active'); results.querySelectorAll('.dropdown-item').forEach(item => { item.addEventListener('click', function() { const name = this.dataset.locName; state.selectedLocation = { name }; insertText('📍' + name); $('#location-search').value = ''; $('#location-search').style.display = 'none'; results.classList.remove('active'); showToast('📍 Location set: ' + name); }); }); }, 300); });
+document.addEventListener('click', (e) => { if (!$('#mention-search').contains(e.target) && !$('#mention-results').contains(e.target)) $('#mention-results').classList.remove('active'); if (!$('#location-search').contains(e.target) && !$('#location-results').contains(e.target)) $('#location-results').classList.remove('active'); });
 
-// ═══════════════════════════════════════
-// INLINE PATCHING PROGRESS
-// ═══════════════════════════════════════
-function showInlineProgress() {
-  $('#main-upload-btn').disabled = true;
-  $('#inline-patch-progress').classList.add('active');
-  $('#post-patch-actions').classList.remove('visible');
-  $('#inline-patch-bar-fill').style.width = '0%';
-  $('#inline-patch-text').textContent = 'Initializing...';
-}
-function updateInlineProgress(percent, text) {
-  $('#inline-patch-bar-fill').style.width = percent + '%';
-  if (text) $('#inline-patch-text').textContent = text;
-}
-function hideInlineProgress() {
-  $('#inline-patch-progress').classList.remove('active');
-}
+// Patching progress
+function showInlineProgress() { $('#main-upload-btn').disabled = true; $('#inline-patch-progress').classList.add('active'); $('#post-patch-actions').classList.remove('visible'); $('#inline-patch-bar-fill').style.width = '0%'; $('#inline-patch-text').textContent = 'Initializing...'; }
+function updateInlineProgress(percent, text) { $('#inline-patch-bar-fill').style.width = percent + '%'; if (text) $('#inline-patch-text').textContent = text; }
+function hideInlineProgress() { $('#inline-patch-progress').classList.remove('active'); }
 
-// ═══════════════════════════════════════
-// OPTIMIZE + PATCH PIPELINE (INTEGRATED)
-// ═══════════════════════════════════════
 async function executePatchPipeline() {
   if (!state.videoFile) return showToast('⚠ Please select a video first');
-  
-  showInlineProgress();
-  updateInlineProgress(10, 'Reading video stream...');
-  await new Promise(r => setTimeout(r, 300));
-  
+  showInlineProgress(); updateInlineProgress(10, 'Reading video stream...'); await new Promise(r => setTimeout(r, 300));
   try {
-    // Browser-side patching using the integrated engine
-    updateInlineProgress(30, 'Injecting bypass parameters...');
-    await new Promise(r => setTimeout(r, 200));
-    
+    updateInlineProgress(30, 'Injecting bypass parameters...'); await new Promise(r => setTimeout(r, 200));
     const bytes = new Uint8Array(await state.videoFile.arrayBuffer());
-    
-    updateInlineProgress(60, 'Stripping canvas metadata...');
-    await new Promise(r => setTimeout(r, 200));
-    
-    // Use the same MP4 patch engine from the patcher
+    updateInlineProgress(60, 'Stripping canvas metadata...'); await new Promise(r => setTimeout(r, 200));
     const patch = buildPaschaPatch(state.videoFile, bytes);
-    
-    updateInlineProgress(90, 'Finalizing...');
-    await new Promise(r => setTimeout(r, 200));
-    
+    updateInlineProgress(90, 'Finalizing...'); await new Promise(r => setTimeout(r, 200));
     window.AETHER_OPTIMIZED_BLOB = new Blob([patch.output], { type: state.videoFile.type || 'video/mp4' });
     state.isOptimized = true;
-    
-    updateInlineProgress(100, 'Patch complete!');
-    await new Promise(r => setTimeout(r, 300));
-    
+    updateInlineProgress(100, 'Patch complete!'); await new Promise(r => setTimeout(r, 300));
     hideInlineProgress();
-    
-    // Show post-patch buttons
-    $('#post-patch-actions').classList.add('visible');
-    $('#main-upload-btn').style.display = 'none';
-    
-    if (state.isAuthorized) {
-      $('#post-tiktok-btn').disabled = false;
-      $('#header-upload-btn').disabled = false;
-    }
-    
-    setMetadataFieldsDisabled(false);
-    showToast('✓ Video patched successfully');
-    
-    // Update stats
-    $('#stat-fps').textContent = '✓ Managed';
-    $('#stat-fps-status').textContent = '✓ Managed';
-    $('#stat-fps-status').className = 'status-indicator green';
-    
-  } catch (err) {
-    hideInlineProgress();
-    $('#main-upload-btn').disabled = false;
-    showToast('⚠ Patching failed: ' + (err.message || 'Unknown error'));
-    console.error('Patch error:', err);
-  }
+    $('#post-patch-actions').classList.add('visible'); $('#main-upload-btn').style.display = 'none';
+    if (state.isAuthorized) { $('#post-tiktok-btn').disabled = false; $('#header-upload-btn').disabled = false; }
+    setMetadataFieldsDisabled(false); showToast('✓ Video patched successfully');
+    $('#stat-fps').textContent = '✓ Managed'; $('#stat-fps-status').textContent = '✓ Managed'; $('#stat-fps-status').className = 'status-indicator green';
+  } catch (err) { hideInlineProgress(); $('#main-upload-btn').disabled = false; showToast('⚠ Patching failed: ' + (err.message || 'Unknown error')); }
 }
 
-// ═══════════════════════════════════════
-// DOWNLOAD PATCHED VIDEO
-// ═══════════════════════════════════════
-function downloadPatchedVideo() {
-  if (!window.AETHER_OPTIMIZED_BLOB) return showToast('⚠ No patched video found');
-  const url = URL.createObjectURL(window.AETHER_OPTIMIZED_BLOB);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = (state.videoFile?.name || 'video').replace(/\.[^/.]+$/, '') + ' - Aether-Patcher.mp4';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('✓ Patched video downloaded');
-}
+function downloadPatchedVideo() { if (!window.AETHER_OPTIMIZED_BLOB) return showToast('⚠ No patched video found'); const url = URL.createObjectURL(window.AETHER_OPTIMIZED_BLOB); const a = document.createElement('a'); a.href = url; a.download = (state.videoFile?.name || 'video').replace(/\.[^/.]+$/, '') + ' - Aether-Patcher.mp4'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast('✓ Patched video downloaded'); }
 
 // ═══════════════════════════════════════
-// POST TO TIKTOK
+// POST TO TIKTOK (FIXED)
 // ═══════════════════════════════════════
 async function postToTikTok() {
   if (!state.isAuthorized) return showToast('⚠ Please authorize TikTok first');
@@ -1101,44 +619,47 @@ async function postToTikTok() {
   showToast('📤 Uploading to TikTok...');
   
   try {
+    // Use FormData properly - send as multipart/form-data
     const formData = new FormData();
     formData.append('video', window.AETHER_OPTIMIZED_BLOB, 'patched_video.mp4');
     formData.append('caption', $('#caption-input').value || '');
     formData.append('privacy_level', $('#privacy-select').value || 'PUBLIC_TO_EVERYONE');
-    formData.append('disable_comment', $('#disable-comment').checked);
-    formData.append('disable_duet', $('#disable-duet').checked);
-    formData.append('disable_stitch', $('#disable-stitch').checked);
+    formData.append('disable_comment', $('#disable-comment').checked ? 'true' : 'false');
+    formData.append('disable_duet', $('#disable-duet').checked ? 'true' : 'false');
+    formData.append('disable_stitch', $('#disable-stitch').checked ? 'true' : 'false');
+    
+    console.log('[TikTok] Posting video... Size:', (window.AETHER_OPTIMIZED_BLOB.size / 1024 / 1024).toFixed(1), 'MB');
     
     const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/post-video`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${state.accessToken}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${state.accessToken}`
+        // Do NOT set Content-Type - browser sets it automatically for FormData
       },
-      body: JSON.stringify(Object.fromEntries(formData))
+      body: formData
     });
     
-    if (res.ok) {
+    const result = await res.json().catch(() => ({}));
+    console.log('[TikTok] Response:', res.status, result);
+    
+    if (res.ok && result.data) {
       showToast('✓ Posted to TikTok successfully!');
     } else {
-      const err = await res.json().catch(() => ({}));
-      showToast('⚠ Post failed: ' + (err.error || 'Unknown error'));
+      showToast('⚠ Post failed: ' + (result.error || result.message || `Status ${res.status}`));
     }
   } catch (err) {
+    console.error('[TikTok] Error:', err);
     showToast('⚠ Post failed: ' + err.message);
   }
 }
 
-// ═══════════════════════════════════════
-// BUTTON HANDLERS
-// ═══════════════════════════════════════
 $('#main-upload-btn').addEventListener('click', executePatchPipeline);
 $('#header-upload-btn').addEventListener('click', postToTikTok);
 $('#post-download-btn').addEventListener('click', downloadPatchedVideo);
 $('#post-tiktok-btn').addEventListener('click', postToTikTok);
 
 // ═══════════════════════════════════════
-// MP4 PATCH ENGINE (Embedded)
+// MP4 PATCH ENGINE
 // ═══════════════════════════════════════
 const FAKE_SAMPLE = new Uint8Array([0,0,0,4,0,0,0,0]);
 function typeAt(b,o){return String.fromCharCode(b[o],b[o+1],b[o+2],b[o+3])}
