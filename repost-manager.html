@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Repost Manager — AetherEnhance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050505;--surface:#0a0a0a;--surface2:#111;--surface3:#1a1a1a;
+  --white:#fff;--tt-red:#fe2c55;--tt-cyan:#20d5ec;
+  --border:rgba(255,255,255,.06);--border-light:rgba(255,255,255,.1);
+  --text-primary:#f5f5f5;--text-secondary:#a1a1aa;--text-tertiary:#71717a;--text-muted:#52525b;
+  --header-h:56px;
+}
+[data-theme="light"]{
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--surface3:#e2e8f0;
+  --white:#0f172a;--text-primary:#0f172a;--text-secondary:#475569;
+  --text-tertiary:#64748b;--text-muted:#94a3b8;
+  --border:rgba(0,0,0,.06);--border-light:rgba(0,0,0,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text-primary);font-family:'Inter',system-ui,sans-serif;min-height:100vh;transition:background .3s,color .3s}
+.mono{font-family:'Geist Mono',monospace}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#222;border-radius:2px}
+
+.studio-header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:rgba(5,5,5,.9);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 22px;transition:background .3s,border-color .3s}
+[data-theme="light"] .studio-header{background:rgba(248,250,252,.9)}
+.header-left{display:flex;align-items:center;gap:14px}
+.header-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.header-logo-mark{width:28px;height:28px;background:var(--white);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--bg);font-weight:800;font-family:'Geist Mono',monospace;transition:background .3s,color .3s}
+.header-logo-text{font-weight:800;font-size:14px;color:var(--white);letter-spacing:-.02em;transition:color .3s}
+.header-nav{display:flex;align-items:center;gap:2px;margin-left:16px}
+.header-nav-item{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-muted);text-decoration:none;white-space:nowrap;transition:all .15s}
+.header-nav-item:hover{color:var(--text-secondary);background:var(--surface2)}
+.header-nav-item.active{color:var(--white);background:var(--surface3)}
+.header-nav-item.home-link{color:var(--tt-cyan)}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+.hamburger-btn{display:none;width:32px;height:32px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s;flex-shrink:0}
+.hamburger-btn:hover{border-color:var(--border-light);color:var(--white)}
+.mobile-nav-dropdown{display:none;position:fixed;top:var(--header-h);left:0;right:0;background:rgba(5,5,5,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:99;padding:10px 14px;flex-direction:column;gap:2px;transform:translateY(-8px);opacity:0;pointer-events:none;transition:all .2s ease}
+[data-theme="light"] .mobile-nav-dropdown{background:rgba(248,250,252,.96)}
+.mobile-nav-dropdown.open{transform:translateY(0);opacity:1;pointer-events:auto}
+.mobile-nav-item{padding:11px 14px;border-radius:7px;font-size:12px;font-weight:600;color:var(--text-muted);text-decoration:none;display:block;transition:all .15s}
+.mobile-nav-item:hover{color:var(--text-secondary);background:var(--surface2)}
+.mobile-nav-item.active{color:var(--white);background:var(--surface3)}
+.mobile-nav-item.home-link{color:var(--tt-cyan)}
+
+.content{padding-top:calc(var(--header-h) + 80px);text-align:center;flex:1;padding-bottom:80px}
+.content .badge{display:inline-block;padding:6px 16px;border:1px solid var(--tt-red);border-radius:20px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--tt-red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;background:rgba(254,44,85,.05)}
+.content h1{font-size:clamp(32px,5vw,56px);font-weight:800;color:var(--white);letter-spacing:-.03em;margin-bottom:14px;transition:color .3s}
+.content p{color:var(--text-secondary);font-size:15px;max-width:420px;margin:0 auto 36px;line-height:1.7}
+.content a{display:inline-block;color:var(--tt-cyan);text-decoration:none;font-size:13px;font-weight:600;padding:8px 20px;border:1px solid var(--border);border-radius:8px;transition:all .15s}
+.content a:hover{border-color:var(--border-light);background:var(--surface2)}
+.feature-icon{font-size:64px;margin-bottom:24px;display:block}
+
+@media(max-width:900px){.header-nav{display:none}.hamburger-btn{display:flex}.mobile-nav-dropdown{display:flex}}
+@media(max-width:420px){.header-logo-text{display:none}}
+</style>
+</head>
+<body>
+
+<header class="studio-header">
+  <div class="header-left">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="index.html" class="header-logo"><div class="header-logo-mark">◈</div><span class="header-logo-text">AetherEnhance</span></a>
+    <nav class="header-nav">
+      <a href="index.html" class="header-nav-item home-link">⌂ Home</a>
+      <a href="patcherstudio.html" class="header-nav-item">Video Patcher</a>
+      <a href="video-enhancer.html" class="header-nav-item">Video Enhancer</a>
+      <a href="compressor.html" class="header-nav-item">Compressor</a>
+      <a href="video-downloader.html" class="header-nav-item">Video Downloader</a>
+      <a href="repost-manager.html" class="header-nav-item active">Repost Manager</a>
+      <a href="auto-captions.html" class="header-nav-item">Auto Captions</a>
+    </nav>
+  </div>
+  <div class="header-right"></div>
+</header>
+
+<div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
+  <a href="index.html" class="mobile-nav-item home-link">⌂ Home</a>
+  <a href="patcherstudio.html" class="mobile-nav-item">Video Patcher</a>
+  <a href="video-enhancer.html" class="mobile-nav-item">Video Enhancer</a>
+  <a href="compressor.html" class="mobile-nav-item">Compressor</a>
+  <a href="video-downloader.html" class="mobile-nav-item">Video Downloader</a>
+  <a href="repost-manager.html" class="mobile-nav-item active">Repost Manager</a>
+  <a href="auto-captions.html" class="mobile-nav-item">Auto Captions</a>
+</div>
+
+<div class="content">
+  <span class="feature-icon">⊞</span>
+  <div class="badge">Coming Soon</div>
+  <h1>Repost Manager</h1>
+  <p>Batch-fetch your entire repost history, filter by keyword, and delete everything with human-speed rate limiting.</p>
+  <a href="patcherstudio.html">← Back to Studio</a>
+</div>
+
+<script>
+(function(){
+  let isDark = localStorage.getItem('aether-theme') === null ? true : localStorage.getItem('aether-theme') === 'dark';
+  function setTheme(dark) { document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); }
+  setTheme(isDark);
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
+  hamburgerBtn.addEventListener('click', () => mobileNavDropdown.classList.toggle('open'));
+  document.addEventListener('click', (e) => {
+    if (!hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
+      mobileNavDropdown.classList.remove('open');
+    }
+  });
+})();
+</script>
+</body>
+</html>

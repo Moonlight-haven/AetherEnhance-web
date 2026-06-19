@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AetherEnhance — The Best TikTok Enhancement Tool</title>
+<meta name="description" content="14+ features. Video patcher, video enhancement, analytics, repost manager, bookmarks, screen recorder and more. Join our Telegram community."/>
+<link rel="icon" type="image/png" href="images/image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --k:#080808;--off:#101010;--s1:#151515;--s2:#1c1c1c;
+  --l1:#222;--l2:#2e2e2e;--l3:#3a3a3a;
+  --m:#555;--sub:#888;--body:#c8c8c8;--text:#e8e8e8;
+  --bright:#f5f5f5;--w:#ffffff;
+  --font:'Inter',system-ui,sans-serif;
+  --head:'Sora',system-ui,sans-serif;
+  --mono:'DM Mono','SF Mono',monospace;
+  --max:1100px;--e:cubic-bezier(.4,0,.2,1);
+  --bounce:cubic-bezier(.175,.885,.32,1.275);
+  --spring:cubic-bezier(0.68,-0.55,0.265,1.55);
+  --bg:#080808;--surface:#101010;--surface2:#151515;
+  --border:#222;--border2:#2e2e2e;--border3:#3a3a3a;
+  --muted:#555;--subtle:#888;--body-color:#c8c8c8;--text-color:#e8e8e8;
+  --bright:#f5f5f5;--white:#ffffff;
+  --btn-bg:#ffffff;--btn-text:#080808;
+  --card-bg:#101010;
+  --tiktok-red:#ff004f;
+  --tiktok-cyan:#00f2ea;
+  --green:#00cc66;
+  --glass-bg:rgba(255,255,255,0.03);
+  --glass-border:rgba(255,255,255,0.06);
+  --glass-shadow:0 8px 32px rgba(0,0,0,0.4);
+  --card-shadow:0 1px 2px rgba(0,0,0,0.2);
+  --arch-sidebar-bg:#101010;
+  --arch-content-bg:#101010;
+  --arch-tab-bg:#151515;
+  --arch-tab-active-bg:#ffffff;
+  --arch-tab-active-text:#080808;
+  --arch-status-bg:#151515;
+}
+[data-theme="light"]{
+  --bg:#f5f5f7;--surface:#ffffff;--surface2:#fafafa;
+  --border:#e8e8ed;--border2:#dcdce0;--border3:#c8c8cc;
+  --muted:#86868b;--subtle:#515154;--body-color:#1d1d1f;--text-color:#1d1d1f;
+  --bright:#0f172a;--white:#0f172a;
+  --btn-bg:#0f172a;--btn-text:#ffffff;
+  --card-bg:#ffffff;
+  --glass-bg:rgba(255,255,255,0.6);
+  --glass-border:rgba(255,255,255,0.8);
+  --glass-shadow:0 8px 40px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);
+  --card-shadow:0 1px 3px rgba(0,0,0,0.04),0 4px 16px rgba(0,0,0,0.04);
+  --arch-sidebar-bg:#f9f9fb;
+  --arch-content-bg:#ffffff;
+  --arch-tab-bg:#f0f0f3;
+  --arch-tab-active-bg:#0f172a;
+  --arch-tab-active-text:#ffffff;
+  --arch-status-bg:#f0f0f3;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--body-color);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .5s,color .5s}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+@media(max-width:600px){.wrap{padding:0 18px}}
+
+/* ── LIQUID GLASS BACKGROUND ORB ── */
+.hero-orb{position:absolute;border-radius:50%;filter:blur(120px);opacity:.15;pointer-events:none;z-index:0;transition:all .8s ease}
+.hero-orb-1{width:600px;height:600px;background:var(--tiktok-red);top:-200px;left:-200px;animation:orbFloat 12s ease-in-out infinite}
+.hero-orb-2{width:400px;height:400px;background:var(--tiktok-cyan);bottom:-150px;right:-150px;animation:orbFloat 15s ease-in-out infinite reverse}
+.hero-orb-3{width:300px;height:300px;background:#8b5cf6;top:50%;left:50%;transform:translate(-50%,-50%);animation:orbFloat 18s ease-in-out infinite}
+[data-theme="light"] .hero-orb{opacity:.08}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(80px,-40px) scale(1.1)}50%{transform:translate(-30px,60px) scale(.9)}75%{transform:translate(-60px,-30px) scale(1.05)}}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--subtle);transition:all .3s;flex-shrink:0;position:relative;overflow:hidden}
+.theme-toggle::after{content:'';position:absolute;inset:0;background:var(--tiktok-red);border-radius:50%;transform:scale(0);transition:transform .4s var(--spring)}
+.theme-toggle:hover::after{transform:scale(1)}
+.theme-toggle:hover{color:var(--white);border-color:var(--tiktok-red)}
+.theme-toggle svg{width:16px;height:16px;position:relative;z-index:1}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--border);background:var(--glass-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transition:all .5s}
+[data-theme="light"] nav{background:rgba(255,255,255,.7);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.nav-i{display:flex;align-items:center;height:58px;max-width:var(--max);margin:0 auto;padding:0 28px;gap:32px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:auto;position:relative}
+.logo-box{width:28px;height:28px;background:var(--white);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;transition:all .4s;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.logo:hover .logo-box{transform:rotate(12deg) scale(1.08);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.logo-name{font-family:var(--head);font-weight:700;font-size:15px;color:var(--white);letter-spacing:-.02em;transition:color .3s}
+.nav-links{display:flex;list-style:none;gap:0}
+.nav-links a{display:block;padding:0 13px;font-size:13px;color:var(--subtle);text-decoration:none;transition:all .2s;font-weight:400;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%) scaleX(0);width:60%;height:2px;background:var(--tiktok-red);border-radius:1px;transition:transform .3s var(--spring)}
+.nav-links a:hover{color:var(--text-color)}
+.nav-links a:hover::after{transform:translateX(-50%) scaleX(1)}
+.nav-end{display:flex;align-items:center}
+@media(max-width:700px){.nav-links{display:none}.nav-i{padding:0 18px;gap:0}}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--font);font-size:13px;font-weight:500;padding:8px 18px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all .25s var(--bounce);text-decoration:none;letter-spacing:-.01em;white-space:nowrap;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,.2) 0%,transparent 70%);opacity:0;transition:opacity .3s}
+.btn:hover::after{opacity:1}
+.btn-w{background:var(--btn-bg);color:var(--btn-text);border-color:var(--btn-bg);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.btn-w:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.15);filter:brightness(1.05)}
+.btn-ol{background:transparent;border-color:var(--border2);color:var(--body-color);backdrop-filter:blur(8px)}
+.btn-ol:hover{border-color:var(--subtle);color:var(--text-color);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.btn-tg{background:linear-gradient(135deg,#0088cc,#0ea5d4);color:#fff;border-color:#0088cc;box-shadow:0 4px 16px rgba(0,136,204,.25)}
+.btn-tg:hover{background:linear-gradient(135deg,#0077b5,#0088cc);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,136,204,.35)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-lg{padding:14px 30px;font-size:16px;border-radius:10px;font-weight:600}
+
+/* ── STUDIO ENHANCER BADGE ── */
+.studio-enhancer-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border:1px solid var(--tiktok-red);border-radius:24px;font-family:var(--mono);font-size:11px;color:var(--tiktok-red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;background:rgba(255,0,79,.04);animation:badgeIn .6s var(--spring) both}
+.fc-badge-live{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:4px 9px;border-radius:4px;border:1px solid var(--green);color:var(--green);letter-spacing:.06em;background:rgba(0,204,102,.06)}
+@keyframes badgeIn{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ── HERO ── */
+.hero{padding:180px 0 120px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(254,44,85,.06) 0%,transparent 60%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border:1px solid var(--border2);border-radius:24px;font-family:var(--mono);font-size:11px;color:var(--subtle);letter-spacing:.06em;text-transform:uppercase;margin-bottom:32px;backdrop-filter:blur(8px);background:var(--glass-bg);animation:badgeIn .6s var(--spring) .1s both}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--tiktok-red);animation:pp 2s ease infinite;box-shadow:0 0 12px var(--tiktok-red)}
+@keyframes pp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+.hero h1{font-family:var(--head);font-size:clamp(42px,7vw,80px);font-weight:800;line-height:1.04;letter-spacing:-.05em;color:var(--white);margin-bottom:24px;transition:color .5s;animation:heroTitleIn .8s var(--bounce) .2s both}
+@keyframes heroTitleIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero h1 .dim{color:var(--muted)}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--subtle);max-width:540px;margin:0 auto 40px;line-height:1.7;font-weight:300;animation:heroSubIn .8s var(--bounce) .35s both}
+@keyframes heroSubIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-btns{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;animation:heroBtnsIn .8s var(--bounce) .5s both}
+@keyframes heroBtnsIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.hero-note{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.03em;animation:heroSubIn .8s var(--bounce) .6s both}
+
+/* Code block */
+.hero-code{display:inline-block;margin-top:70px;background:var(--surface);border:1px solid var(--border2);border-radius:12px;text-align:left;max-width:480px;width:100%;box-shadow:var(--glass-shadow);transition:all .5s;animation:codeIn .9s var(--bounce) .7s both}
+[data-theme="light"] .hero-code{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border)}
+.hero-code:hover{transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,.15)}
+@keyframes codeIn{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.code-hdr{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.cd{width:10px;height:10px;border-radius:50%;background:var(--border2)}
+.cd:nth-child(1){background:#ff5f57}.cd:nth-child(2){background:#febc2e}.cd:nth-child(3){background:#28c840}
+.cf{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:6px}
+.code-b{padding:18px;font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--subtle)}
+.ck{color:#999}.cs{color:#bbb}.cc{color:var(--muted)}.cn{color:#ddd}
+
+/* ── SECTION ── */
+section{padding:100px 0;border-top:1px solid var(--border);transition:border-color .5s;position:relative}
+section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,var(--tiktok-red),transparent);opacity:0;transition:opacity .8s}
+section:hover::before{opacity:.15}
+.sec-tag{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;display:block}
+.sec-title{font-family:var(--head);font-size:clamp(28px,4.5vw,44px);font-weight:700;letter-spacing:-.04em;color:var(--white);margin-bottom:12px;line-height:1.12;transition:color .5s}
+.sec-sub{font-size:15px;color:var(--subtle);max-width:480px;line-height:1.7;font-weight:300}
+
+/* ── STATS ── */
+.stats-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:56px;transition:all .5s;box-shadow:var(--card-shadow)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);padding:34px 22px;text-align:center;transition:all .4s;position:relative;overflow:hidden}
+.stat:hover{background:var(--surface2);transform:translateY(-2px)}
+.stat::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--tiktok-red);transition:width .3s var(--spring)}
+.stat:hover::after{width:40%}
+.sn{font-family:var(--head);font-size:42px;font-weight:800;color:var(--white);letter-spacing:-.05em;line-height:1;margin-bottom:6px;display:block;transition:color .5s}
+.sl{font-size:11px;color:var(--muted);font-family:var(--mono);letter-spacing:.06em}
+
+/* ── FEATURES ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;margin-top:56px;border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .5s;box-shadow:var(--card-shadow)}
+.fc{background:var(--surface);padding:30px 26px;transition:all .35s var(--bounce);position:relative;cursor:default}
+.fc:hover{background:var(--surface2);transform:translateY(-4px);z-index:2;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--tiktok-red),var(--tiktok-cyan));transform:scaleX(0);transition:transform .4s var(--spring)}
+.fc:hover::before{transform:scaleX(1)}
+.fc-icon{width:40px;height:40px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:16px;transition:all .4s var(--spring)}
+.fc:hover .fc-icon{background:var(--white);color:var(--bg);transform:scale(1.1) rotate(-6deg);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.fc-name{font-family:var(--head);font-size:15px;font-weight:600;color:var(--text-color);margin-bottom:6px;letter-spacing:-.02em;transition:color .3s}
+.fc-desc{font-size:12px;color:var(--subtle);line-height:1.65}
+.fc-tag{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid var(--border2);color:var(--muted);letter-spacing:.06em;transition:all .3s}
+.fc:hover .fc-tag{border-color:var(--border3);color:var(--subtle)}
+.fc-badge-coming{display:inline-block;margin-top:12px;font-family:var(--mono);font-size:8px;padding:4px 9px;border-radius:4px;border:1px solid var(--tiktok-red);color:var(--tiktok-red);letter-spacing:.06em;background:rgba(255,0,79,.04);animation:badgePulse 2s ease-in-out infinite}
+@keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── HOW ── */
+.how-wrap{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;margin-top:56px}
+@media(max-width:700px){.how-wrap{grid-template-columns:1fr}}
+.steps{display:flex;flex-direction:column}
+.step{display:flex;gap:18px;padding:20px 0;border-bottom:1px solid var(--border);transition:all .3s;cursor:default}
+.step:hover{padding-left:8px}
+.step:last-child{border-bottom:none}
+.stn{font-family:var(--mono);font-size:12px;color:var(--muted);width:20px;flex-shrink:0;padding-top:2px;transition:color .3s}
+.step:hover .stn{color:var(--tiktok-red)}
+.st-title{font-size:15px;font-weight:600;color:var(--text-color);margin-bottom:4px;letter-spacing:-.02em;transition:color .3s}
+.st-desc{font-size:13px;color:var(--subtle);line-height:1.65}
+
+/* Panel mock */
+.panel-mock{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:20px;box-shadow:var(--glass-shadow);transition:all .5s;animation:panelFloat 6s ease-in-out infinite}
+[data-theme="light"] .panel-mock{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border)}
+@keyframes panelFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.pm-hdr{display:flex;align-items:center;gap:7px;padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:14px;transition:border-color .3s}
+.pm-d{width:8px;height:8px;border-radius:50%;background:var(--border2)}
+.pm-title{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.pm-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:3px;background:transparent;transition:all .2s}
+.pm-row:hover{background:var(--surface2)}
+.pm-icon{font-size:13px;width:18px;text-align:center}
+.pm-label{font-size:12px;color:var(--body-color);flex:1;transition:color .3s}
+.pm-tog{width:30px;height:16px;border-radius:8px;background:var(--white);position:relative;flex-shrink:0;transition:all .3s;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+.pm-tog::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:var(--bg);top:3px;right:3px;transition:all .3s var(--spring)}
+.pm-tog.off{background:var(--border2)}
+.pm-tog.off::after{left:3px;right:auto;background:var(--subtle)}
+.pm-tog.patcher-tog{background:linear-gradient(135deg,var(--tiktok-red),var(--tiktok-cyan))}
+.pm-prog{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);transition:border-color .3s}
+.pm-prog-label{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:7px}
+.pm-prog-track{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;transition:background .3s}
+.pm-prog-fill{height:100%;background:linear-gradient(90deg,var(--tiktok-red),var(--tiktok-cyan));border-radius:2px;transition:all .3s}
+
+/* ── ARCHITECTS ── */
+.architects-section{padding:100px 0;border-top:1px solid var(--border)}
+.architects-container{max-width:var(--max);margin:0 auto;padding:0 28px}
+.architects-grid{display:grid;grid-template-columns:320px 1fr;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:56px;transition:all .5s;box-shadow:var(--card-shadow)}
+@media(max-width:800px){.architects-grid{grid-template-columns:1fr}}
+.architects-sidebar{background:var(--arch-sidebar-bg);padding:34px 28px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:26px;transition:all .3s}
+@media(max-width:800px){.architects-sidebar{border-right:none;border-bottom:1px solid var(--border)}}
+.architects-tabs{display:flex;flex-direction:column;gap:8px}
+.arch-tab{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-radius:10px;border:1px solid var(--border2);background:var(--arch-tab-bg);cursor:pointer;transition:all .3s var(--bounce);font-family:var(--mono);font-size:12px;color:var(--subtle);letter-spacing:.06em;text-transform:uppercase}
+.arch-tab:hover{border-color:var(--border3);color:var(--text-color);transform:translateX(4px)}
+.arch-tab.active{background:var(--arch-tab-active-bg);color:var(--arch-tab-active-text);border-color:var(--arch-tab-active-bg);box-shadow:0 8px 24px rgba(0,0,0,.1);transform:translateX(4px)}
+.arch-tab .dev-id{font-size:9px;opacity:.5}
+.arch-status{border:1px dashed var(--border2);border-radius:11px;padding:18px 20px;background:var(--arch-status-bg);margin-top:auto;transition:all .3s}
+.arch-status-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px}
+.arch-status-row{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--subtle)}
+.arch-status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px rgba(0,204,102,.5);flex-shrink:0;animation:pp 3s ease infinite}
+.architects-content{background:var(--arch-content-bg);padding:52px 56px;min-height:460px;display:flex;align-items:center;transition:background .3s}
+@media(max-width:600px){.architects-content{padding:34px 24px}}
+.architect-profile{display:none;width:100%;animation:profileIn .4s var(--bounce)}
+.architect-profile.active{display:block}
+@keyframes profileIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.architect-inner{display:grid;grid-template-columns:1fr 260px;gap:48px;align-items:center}
+@media(max-width:700px){.architect-inner{grid-template-columns:1fr;gap:30px}}
+.architect-info h3{font-family:var(--head);font-size:clamp(34px,4.5vw,52px);font-weight:700;letter-spacing:-.04em;color:var(--white);margin-bottom:20px;transition:color .5s}
+.architect-info p{font-size:15px;color:var(--subtle);line-height:1.75;margin-bottom:26px;max-width:440px}
+.architect-tag{display:inline-block;padding:8px 16px;border-radius:6px;border:1px solid var(--border2);font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);background:var(--arch-tab-bg);transition:all .3s}
+.architect-image-wrapper{width:260px;height:320px;border-radius:16px;overflow:hidden;background:var(--arch-tab-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .5s;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.architect-image-wrapper:hover{transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,.2)}
+@media(max-width:700px){.architect-image-wrapper{width:100%;height:280px}}
+.architect-image-wrapper img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── JOIN ── */
+.join-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-top:56px}
+@media(max-width:800px){.join-cards{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.join-cards{grid-template-columns:1fr}}
+.jc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:34px;transition:all .4s var(--bounce);position:relative;overflow:hidden;box-shadow:var(--card-shadow)}
+.jc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--tiktok-red),var(--tiktok-cyan));transform:scaleX(0);transform-origin:left;transition:transform .5s var(--spring)}
+.jc:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(0,0,0,.12)}
+.jc:hover::before{transform:scaleX(1)}
+.jc-icon{font-size:34px;margin-bottom:18px;display:block;transition:transform .4s var(--spring)}
+.jc:hover .jc-icon{transform:scale(1.15) rotate(-5deg)}
+.jc-name{font-family:var(--head);font-size:19px;font-weight:700;color:var(--white);margin-bottom:8px;letter-spacing:-.03em;transition:color .5s}
+.jc-desc{font-size:13px;color:var(--subtle);line-height:1.65;margin-bottom:22px}
+.jc-url{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:12px;letter-spacing:.04em}
+
+/* CTA box */
+.cta-box{margin-top:32px;padding:34px;background:var(--surface);border:1px solid var(--border);border-radius:14px;text-align:center;transition:all .5s;box-shadow:var(--card-shadow);position:relative;overflow:hidden}
+.cta-box::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(254,44,85,.03) 0%,transparent 70%);pointer-events:none}
+.cta-box:hover{transform:translateY(-2px);box-shadow:0 16px 48px rgba(0,0,0,.1)}
+.cta-box p{font-size:15px;color:var(--subtle);margin-bottom:18px;position:relative;z-index:1}
+
+/* ── STUDIO ── */
+.studio-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:56px}
+@media(max-width:700px){.studio-wrap{grid-template-columns:1fr}}
+.studio-feats{display:flex;flex-direction:column;gap:12px}
+.sf{display:flex;align-items:flex-start;gap:14px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;transition:all .3s var(--bounce);cursor:default}
+.sf:hover{border-color:var(--border2);transform:translateX(6px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.sf-icon{width:36px;height:36px;flex-shrink:0;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .4s var(--spring)}
+.sf:hover .sf-icon{background:var(--tiktok-red);color:white;border-color:var(--tiktok-red);transform:scale(1.1)}
+.sf-title{font-size:13px;font-weight:600;color:var(--text-color);margin-bottom:3px;transition:color .3s}
+.sf-desc{font-size:12px;color:var(--subtle);line-height:1.55}
+
+/* Upload mock */
+.upload-mock{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;box-shadow:var(--glass-shadow);transition:all .5s;animation:panelFloat 7s ease-in-out infinite}
+[data-theme="light"] .upload-mock{background:var(--glass-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border)}
+.um-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;transition:border-color .3s}
+.um-dots{display:flex;gap:5px}
+.um-dot{width:10px;height:10px;border-radius:50%;background:var(--border2)}
+.um-title{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:5px}
+.um-body{padding:20px}
+.um-drop{border:1px dashed var(--border2);border-radius:10px;padding:30px;text-align:center;margin-bottom:16px;transition:all .3s;cursor:pointer}
+.um-drop:hover{border-color:var(--tiktok-red);background:rgba(254,44,85,.02)}
+.um-drop-icon{width:40px;height:40px;background:var(--surface);border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:18px;transition:all .3s}
+.um-drop:hover .um-drop-icon{background:rgba(254,44,85,.08);transform:scale(1.1)}
+.um-drop-title{font-size:13px;font-weight:600;color:var(--text-color);margin-bottom:4px;transition:color .3s}
+.um-drop-sub{font-size:11px;color:var(--subtle)}
+.um-drop-note{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:7px;letter-spacing:.05em}
+.um-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.um-chip{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:4px;border:1px solid var(--border2);color:var(--subtle);transition:all .3s}
+.um-chip.on{border-color:var(--border3);color:var(--text-color);background:var(--surface)}
+.um-actions{display:flex;gap:8px}
+.um-btn{flex:1;padding:10px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;cursor:default;transition:all .3s}
+.um-btn-p{background:var(--btn-bg);color:var(--btn-text);transition:all .3s}
+.um-btn-s{background:transparent;border:1px solid var(--border2);color:var(--subtle);transition:all .3s}
+
+/* ── COMPARE ── */
+.compare-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:56px;box-shadow:var(--card-shadow)}
+.compare{width:100%;border-collapse:collapse}
+.compare th{padding:14px 20px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--subtle);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;transition:all .3s}
+.compare td{padding:13px 20px;border-bottom:1px solid var(--border);font-size:13px;color:var(--body-color);vertical-align:middle;transition:all .2s}
+.compare tr:last-child td{border-bottom:none}
+.compare tr:hover td{background:var(--surface2)}
+.ck{color:var(--text-color);font-weight:500}
+.cx{color:var(--muted)}
+
+/* ── FAQ ── */
+.faq-wrap{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:52px;box-shadow:var(--card-shadow)}
+.faq{display:flex;flex-direction:column}
+.faq-item{border-bottom:1px solid var(--border);transition:border-color .3s}
+.faq-item:last-child{border-bottom:none}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 22px;background:transparent;border:none;font-family:var(--font);font-size:14px;font-weight:500;color:var(--text-color);cursor:pointer;text-align:left;transition:all .2s}
+.faq-q:hover{background:var(--surface2)}
+.faq-q svg{flex-shrink:0;color:var(--muted);transition:transform .3s var(--spring)}
+.faq-item.open .faq-q svg{transform:rotate(45deg)}
+.faq-a{padding:0 22px;max-height:0;overflow:hidden;transition:max-height .35s var(--e),padding .25s;font-size:13px;color:var(--subtle);line-height:1.75}
+.faq-item.open .faq-a{max-height:240px;padding:0 22px 18px}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:56px 0 32px;transition:border-color .5s}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+@media(max-width:700px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:400px){.footer-grid{grid-template-columns:1fr}}
+.fb-name{font-family:var(--head);font-size:17px;font-weight:700;color:var(--white);margin-bottom:10px;letter-spacing:-.03em;transition:color .5s}
+.fb-desc{font-size:13px;color:var(--muted);line-height:1.65;max-width:200px}
+.fc-col h4{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
+.fc-col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.fc-col ul a{font-size:13px;color:var(--subtle);text-decoration:none;transition:all .15s;position:relative}
+.fc-col ul a:hover{color:var(--text-color);padding-left:4px}
+.footer-bottom{display:flex;align-items:center;justify-content:center;padding-top:24px;border-top:1px solid var(--border);transition:border-color .5s}
+.fcopy{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em}
+
+/* ── Mobile nav theme toggle ── */
+@media(max-width:700px){.nav-end .theme-toggle-desktop{display:none}.theme-toggle-mobile{display:flex!important}}
+@media(min-width:701px){.theme-toggle-mobile{display:none!important}}
+
+/* ── SCROLL-TRIGGERED REVEAL (replays every time) ── */
+.reveal{opacity:0;transition:all .7s var(--bounce)}
+.reveal.from-left{transform:translateX(-40px)}
+.reveal.from-right{transform:translateX(40px)}
+.reveal.from-bottom{transform:translateY(30px)}
+.reveal.scale-in{transform:scale(.9)}
+.reveal.visible{opacity:1;transform:translate(0) scale(1)}
+
+/* ── Editing Haven Card ── */
+.jc-haven{border-color:var(--tiktok-red)}
+.jc-haven .jc-icon{width:44px;height:44px;display:block;margin-bottom:18px}
+.jc-haven .jc-icon img{width:100%;height:100%;object-fit:contain}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-i">
+    <a class="logo" href="/">
+      <div class="logo-box">◈</div>
+      <span class="logo-name">AetherEnhance</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">Setup</a></li>
+      <li><a href="#studio">Studio</a></li>
+      <li><a href="#architects">Architects</a></li>
+      <li><a href="#join">Community</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-end">
+      <button class="theme-toggle theme-toggle-desktop" id="theme-btn" title="Switch theme" aria-label="Toggle light/dark mode">
+        <svg id="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        <svg id="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<button class="theme-toggle theme-toggle-mobile" id="theme-btn-mobile" title="Switch theme" aria-label="Toggle light/dark mode" style="position:fixed;top:14px;right:18px;z-index:110;display:none">
+  <svg id="sun-icon-mobile" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+  <svg id="moon-icon-mobile" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+</button>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="wrap" style="position:relative;z-index:1">
+    <div class="studio-enhancer-badge">STUDIO ENHANCER</div>
+    <div class="hero-badge"><span class="pulse"></span>7 Core Modules · Video Patcher Live</div>
+    <h1>BYPASS TIKTOK<br/><span class="dim">COMPRESSION.</span></h1>
+    <p class="hero-sub">Stop losing your detail to platform algorithms. Upload in the <strong>highest possible quality</strong> with our video patcher and bitrate-locking technology.</p>
+    <div class="hero-btns">
+      <a class="btn btn-w btn-lg" href="patcherstudio.html">TRY NOW</a>
+      <a class="btn btn-tg btn-lg" href="https://t.me/AetherEnhance" target="_blank">JOIN MAIN TELEGRAM</a>
+    </div>
+    <p class="hero-note" style="margin-top:10px">or</p>
+    <div style="margin-top:10px">
+      <a class="btn btn-ol" href="https://chrome.google.com/webstore" target="_blank">GET EXTENSION</a>
+    </div>
+
+    <div class="hero-code">
+      <div class="code-hdr"><span class="cd"></span><span class="cd"></span><span class="cd"></span><span class="cf">aetherenhance · active on tiktok.com</span></div>
+      <div class="code-b">
+        <div><span class="cc">// Engine initialised — 7 modules</span></div>
+        <div><span class="ck">const</span> <span class="cn">status</span> = engine.getStatus()</div>
+        <div>&nbsp;</div>
+        <div><span class="cn">videoPatcher</span>     <span class="cs">→ active · bypass ready</span></div>
+        <div><span class="cn">videoEnhancer</span>   <span class="cs">→ active</span></div>
+        <div><span class="cn">creatorAnalytics</span><span class="cs">→ active</span></div>
+        <div><span class="cn">repostManager</span>   <span class="cs">→ active</span></div>
+        <div><span class="cn">videoDownloader</span> <span class="cs">→ active</span></div>
+        <div><span class="cc">// + compressor, auto captions...</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<section style="padding:48px 0">
+  <div class="wrap">
+    <div class="stats-wrap">
+      <div class="stats">
+        <div class="stat"><span class="sn">7</span><span class="sl">Core Modules</span></div>
+        <div class="stat"><span class="sn">$0</span><span class="sl">Cost</span></div>
+        <div class="stat"><span class="sn">∞</span><span class="sl">Max FPS Supported</span></div>
+        <div class="stat"><span class="sn">&lt;1s</span><span class="sl">Activation Time</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <span class="sec-tag">What's inside</span>
+    <h2 class="sec-title">Everything TikTok<br/>should have built</h2>
+    <p class="sec-sub">7 independent modules. Video Patcher is live. More coming soon.</p>
+
+    <div class="feat-grid">
+      <div class="fc reveal from-bottom"><div class="fc-icon">⚡</div><div class="fc-name">Video Patcher studio</div><div class="fc-desc">Injects bypass parameters, strips canvas metadata, and preserves original quality — all processed in your browser. No server needed.</div><span class="fc-badge-live">LIVE</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">◈</div><div class="fc-name">Video Enhancer</div><div class="fc-desc">Forces highest bitrate streams, strips artificial compression filters, applies sharpening and contrast at the browser renderer level.</div><span class="fc-badge-coming">COMING SOON</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">⚡</div><div class="fc-name">Compressor</div><div class="fc-desc">Smart video compression that reduces file size while maintaining visual quality. Optimise your videos for faster uploads.</div><span class="fc-badge-coming">COMING SOON</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">↓</div><div class="fc-name">Video Downloader</div><div class="fc-desc">Download the current TikTok video at maximum available quality with a single keyboard shortcut.</div><span class="fc-badge-coming">COMING SOON</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">⌇</div><div class="fc-name">Creator Analytics</div><div class="fc-desc">Engagement rate, A–F performance grade and viral score overlaid on every video in your feed in real time.</div><span class="fc-badge-coming">COMING SOON</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">⊞</div><div class="fc-name">Repost Manager</div><div class="fc-desc">Batch-fetch your entire repost history, filter by keyword, and delete everything with human-speed rate limiting.</div><span class="fc-badge-coming">COMING SOON</span></div>
+      <div class="fc reveal from-bottom"><div class="fc-icon">⊟</div><div class="fc-name">Auto Captions</div><div class="fc-desc">Real-time speech recognition on any TikTok video. Caption overlay. Copy full transcript to clipboard.</div><span class="fc-badge-coming">COMING SOON</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <span class="sec-tag">Setup</span>
+    <h2 class="sec-title">Running in under<br/>two minutes</h2>
+    <p class="sec-sub">Just connect your TikTok account and start posting for free today. Use the Video Patcher for zero-compression uploads.</p>
+
+    <div class="how-wrap">
+      <div class="steps">
+        <div class="step reveal from-left"><span class="stn">01</span><div><div class="st-title">Join our Telegram community</div><div class="st-desc">Open the popup, click join group then join channel. Two clicks unlocks everything including the Video Patcher.</div></div></div>
+        <div class="step reveal from-left"><span class="stn">02</span><div><div class="st-title">Link your TikTok account</div><div class="st-desc">Connect securely via OAuth. We never see your password. One click and you're ready.</div></div></div>
+        <div class="step reveal from-left"><span class="stn">03</span><div><div class="st-title">Process and upload with the Patcher</div><div class="st-desc">Upload your video, the Video Patcher strips canvas metadata and injects bypass parameters, then you upload. Highest quality guaranteed.</div></div></div>
+        <div class="step reveal from-left"><span class="stn">04</span><div><div class="st-title">Or use our extension</div><div class="st-desc">Prefer a browser extension? Get AetherEnhance from the Chrome Web Store.</div><a class="btn btn-w btn-sm" href="https://chrome.google.com/webstore" target="_blank" style="margin-top:10px">Get Now →</a></div></div>
+      </div>
+      <div class="panel-mock reveal from-right">
+        <div class="pm-hdr"><div class="pm-d"></div><div class="pm-d"></div><div class="pm-d"></div><span class="pm-title" style="margin-left:8px">AetherEnhance · 7 modules</span></div>
+        <div class="pm-row"><span class="pm-icon">⚡</span><span class="pm-label">Video Patcher studio</span><div class="pm-tog patcher-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">◈</span><span class="pm-label">Video Enhancer</span><div class="pm-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">⌇</span><span class="pm-label">Analytics Overlay</span><div class="pm-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">⊞</span><span class="pm-label">Repost Manager</span><div class="pm-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">⊟</span><span class="pm-label">Auto Captions</span><div class="pm-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">↓</span><span class="pm-label">Video Downloader</span><div class="pm-tog"></div></div>
+        <div class="pm-row"><span class="pm-icon">⚡</span><span class="pm-label">Compressor</span><div class="pm-tog"></div></div>
+        <div class="pm-prog"><div class="pm-prog-label">Session · 7 plays · 12 min</div><div class="pm-prog-track"><div class="pm-prog-fill" style="width:68%"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEB STUDIO -->
+<section id="studio">
+  <div class="wrap">
+    <span class="sec-tag">Web Studio</span>
+    <h2 class="sec-title">For mobile and<br/>PC users</h2>
+    <p class="sec-sub">No extension on your phone? Upload from your device, patch your video, and post to TikTok.</p>
+
+    <div class="studio-wrap">
+      <div class="studio-feats">
+        <div class="sf reveal from-left"><div class="sf-icon">📤</div><div><div class="sf-title">Upload from any device</div><div class="sf-desc">Tap to browse or drag and drop. MP4, MOV, WebM up to 500MB.</div></div></div>
+        <div class="sf reveal from-left"><div class="sf-icon">⚡</div><div><div class="sf-title">Video Patcher studio — LIVE</div><div class="sf-desc">Strip canvas metadata, inject bypass parameters, preserve original quality. Available now.</div></div></div>
+        <div class="sf reveal from-left"><div class="sf-icon">🚀</div><div><div class="sf-title">Post directly to TikTok — LIVE</div><div class="sf-desc">Connect via TikTok OAuth. Set caption, hashtags, and publish in one click.</div></div></div>
+        <div style="padding-top:4px"><a class="btn btn-w" href="patcherstudio.html" style="width:100%;justify-content:center">Try Video Patcher →</a></div>
+      </div>
+      <div class="upload-mock reveal from-right">
+        <div class="um-hdr"><div class="um-dots"><div class="um-dot"></div><div class="um-dot"></div><div class="um-dot"></div></div><span class="um-title" style="margin-left:6px">Video Patcher</span></div>
+        <div class="um-body">
+          <div class="um-drop"><div class="um-drop-icon">📹</div><div class="um-drop-title">Drop your video here</div><div class="um-drop-sub">or tap to open from your device</div><div class="um-drop-note">MP4 · MOV · WEBM · up to 500MB</div></div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Bypass Parameters</div>
+          <div class="um-chips"><span class="um-chip on">Canvas Strip ✓</span><span class="um-chip on">Bypass Inject ✓</span><span class="um-chip on">Quality Lock ✓</span></div>
+          <div class="um-actions"><div class="um-btn um-btn-p">⚡ Patch &amp; Post</div><div class="um-btn um-btn-s">📤 Upload to TikTok</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTS -->
+<section id="architects" class="architects-section">
+  <div class="architects-container">
+    <span class="sec-tag">The Architects</span>
+    <h2 class="sec-title">Meet the minds behind<br/>the engine</h2>
+    <p class="sec-sub">Two specialists. One mission. Pushing TikTok enhancement to its absolute limits.</p>
+    <div class="architects-grid reveal scale-in">
+      <div class="architects-sidebar">
+        <div class="architects-tabs">
+          <button class="arch-tab active"><span>MOONLIGHT</span><span class="dev-id">DEV_01</span></button>
+          <button class="arch-tab"><span>KAIZEN</span><span class="dev-id">DEV_02</span></button>
+        </div>
+        <div class="arch-status"><div class="arch-status-label">System Status</div><div class="arch-status-row"><div class="arch-status-dot"></div><span>All Nodes Operational</span></div></div>
+      </div>
+      <div class="architects-content">
+        <div class="architect-profile active" id="moonlight"><div class="architect-inner"><div class="architect-info"><h3>Moonlight</h3><p>The system architect behind the Aether engine. Built the entire AetherEnhance infrastructure from the ground up. Focused on "OLED-ready" blacks and hyper-sharp color grading.</p><span class="architect-tag">SYSTEM_ARCHITECT</span></div><div class="architect-image-wrapper"><img src="images/Moonlight.png" alt="Moonlight" onerror="this.style.display='none'"></div></div></div>
+        <div class="architect-profile" id="kaizen"><div class="architect-inner"><div class="architect-info"><h3>Kaizen</h3><p>Specializing in high-bitrate aesthetics and technical motion design. Kaizen pushes the boundaries of server-side processing with complex, detail-rich compositions.</p><span class="architect-tag">MOTION_SPECIALIST</span></div><div class="architect-image-wrapper"><img src="images/Kaizen.png" alt="Kaizen" onerror="this.style.display='none'"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="join">
+  <div class="wrap">
+    <span class="sec-tag">Community</span>
+    <h2 class="sec-title">Join our<br/>communities</h2>
+    <p class="sec-sub">Join the group and the channel. All 7 core features activate. That's it.</p>
+    <div class="join-cards">
+      <div class="jc reveal from-bottom"><span class="jc-icon">📣</span><div class="jc-name">Telegram Group</div><div class="jc-desc">Main community chat. Ask questions, share tips, report issues, request features.</div><a class="btn btn-tg" href="https://t.me/AetherEnhanceGroup" target="_blank" style="width:100%;justify-content:center">Join the Group →</a><div class="jc-url">t.me/AetherEnhanceGroup</div></div>
+      <div class="jc reveal from-bottom"><span class="jc-icon">📢</span><div class="jc-name">Telegram Channel</div><div class="jc-desc">Official announcements, new features, changelogs and releases. Stay updated.</div><a class="btn btn-tg" href="https://t.me/aetherenhance" target="_blank" style="width:100%;justify-content:center">Join the Channel →</a><div class="jc-url">t.me/aetherenhance</div></div>
+      <div class="jc jc-haven reveal from-bottom"><span class="jc-icon"><img src="images/editinghaven.png" alt="Editing Haven" onerror="this.parentElement.innerHTML='🎬'"></span><div class="jc-name">Editing Haven</div><div class="jc-desc">Learn editing & get free editing tools. Tutorials, presets, and a creator community.</div><a class="btn btn-tg" href="https://t.me/editing_haven" target="_blank" style="width:100%;justify-content:center;background:linear-gradient(135deg,#ff004f,#ff3370);border-color:#ff004f;">Join Editing Haven →</a><div class="jc-url">t.me/editing_haven</div></div>
+    </div>
+    <div class="cta-box reveal from-bottom"><p>Ready? Start uploading to TikTok in the highest quality possible. Try the Video Patcher now.</p><a class="btn btn-w btn-lg" href="patcherstudio.html">GET STARTED TODAY</a></div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section>
+  <div class="wrap">
+    <span class="sec-tag">Why AetherEnhance</span>
+    <h2 class="sec-title">Professional-grade tools<br/>at zero cost</h2>
+    <p class="sec-sub">Purpose-built for creators who demand quality without compromise.</p>
+    <div class="compare-wrap reveal from-bottom">
+      <table class="compare">
+        <thead><tr><th style="width:40%">Capability</th><th>AetherEnhance</th><th>Alternative Tools</th></tr></thead>
+        <tbody>
+          <tr><td>Pricing model</td><td class="ck">Completely free</td><td class="cx">$5–$20/month</td></tr>
+          <tr><td>Video patching</td><td class="ck">Canvas metadata stripping + bypass</td><td class="cx">Not available</td></tr>
+          <tr><td>Video enhancement</td><td class="ck">Browser-level bitrate locking</td><td class="cx">Limited or none</td></tr>
+          <tr><td>Video compression</td><td class="ck">Smart preservation</td><td class="cx">Degrades quality</td></tr>
+          <tr><td>Repost management</td><td class="ck">Full batch operations</td><td class="cx">Manual only</td></tr>
+          <tr><td>Creator analytics</td><td class="ck">Real-time ER + grade</td><td class="cx">External tools</td></tr>
+          <tr><td>Video downloading</td><td class="ck">One keypress</td><td class="cx">Third-party sites</td></tr>
+          <tr><td>Auto captions</td><td class="ck">Real-time speech recognition</td><td class="cx">Not available</td></tr>
+          <tr><td>Cross-platform</td><td class="ck">Mobile + Desktop</td><td class="cx">Limited</td></tr>
+          <tr><td>Account required</td><td class="ck">None — just Telegram</td><td class="cx">Email + payment</td></tr>
+          <tr><td>Privacy</td><td class="ck">Zero data retention</td><td class="cx">Data collection</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <span class="sec-tag">Questions</span>
+    <h2 class="sec-title">Common questions</h2>
+    <div class="faq-wrap reveal from-bottom">
+      <div class="faq">
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is AetherEnhance really free?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Yes, completely. No credit card, no email, no subscription. Join our Telegram group and channel — that's all we ask — and every feature unlocks instantly.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What does the Video Patcher do?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The Video Patcher strips canvas metadata, injects bypass parameters, and preserves your original video quality by preventing TikTok's re-encoding triggers. It processes everything locally in your browser — no data is sent to any server.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it improve video quality?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Yes. AetherEnhance forces the highest available bitrate stream, removes compression filters TikTok applies, and adds contrast and sharpening at the browser level.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does it work on mobile?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The Chrome extension works on desktop. For mobile, the Web Studio lets you upload, patch, and post directly from your mobile browser.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is my TikTok account safe?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">The extension operates client-side. We use TikTok's official OAuth flow — your password is never visible to us.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Why join Telegram?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Our community is how we share updates and support users. Joining takes 10 seconds — it's the only requirement for a free toolset.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can I toggle features individually?<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 4.5l4.5 4.5L11 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><div class="faq-a">Yes. Every module has its own toggle in the floating panel. Settings persist across browser restarts.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div><div class="fb-name">AetherEnhance</div><div class="fb-desc">The best free TikTok enhancement tool. Built for the community.</div></div>
+      <div class="fc-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#how">How it works</a></li><li><a href="patcherstudio.html">Video Patcher</a></li><li><a href="studio.html">Web Studio</a></li><li><a href="https://chrome.google.com/webstore" target="_blank">Chrome Store</a></li></ul></div>
+      <div class="fc-col"><h4>Community</h4><ul><li><a href="https://t.me/AetherEnhanceGroup" target="_blank">Telegram Group</a></li><li><a href="https://t.me/aetherenhance" target="_blank">Telegram Channel</a></li><li><a href="https://t.me/editing_haven" target="_blank">Editing Haven</a></li></ul></div>
+      <div class="fc-col"><h4>Legal</h4><ul><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><span class="fcopy">© 2026 AetherEnhance</span></div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════
+const themeBtn = document.getElementById('theme-btn');
+const themeBtnMobile = document.getElementById('theme-btn-mobile');
+let isDark = localStorage.getItem('aether-theme') === null ? true : localStorage.getItem('aether-theme') === 'dark';
+function setTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  ['sun-icon','sun-icon-mobile'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=dark?'block':'none'});
+  ['moon-icon','moon-icon-mobile'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=dark?'none':'block'});
+  localStorage.setItem('aether-theme', dark ? 'dark' : 'light');
+}
+[themeBtn, themeBtnMobile].forEach(b=>{if(b)b.addEventListener('click',()=>{isDark=!isDark;setTheme(isDark)})});
+setTheme(isDark);
+
+// ═══════════════════════════════════════
+// ARCHITECT TABS
+// ═══════════════════════════════════════
+document.querySelectorAll('.arch-tab').forEach(tab=>{
+  tab.addEventListener('click',function(){
+    const name=this.textContent.includes('MOONLIGHT')?'moonlight':'kaizen';
+    document.querySelectorAll('.arch-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.architect-profile').forEach(p=>p.classList.remove('active'));
+    this.classList.add('active');
+    const profile=document.getElementById(name);
+    if(profile)profile.classList.add('active');
+  });
+});
+
+// ═══════════════════════════════════════
+// FAQ
+// ═══════════════════════════════════════
+function toggleFaq(btn){
+  const item=btn.closest('.faq-item');
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen)item.classList.add('open');
+}
+
+// ═══════════════════════════════════════
+// REPLAYABLE SCROLL REVEAL
+// ═══════════════════════════════════════
+const revealElements = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    } else {
+      entry.target.classList.remove('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+revealElements.forEach(el => revealObserver.observe(el));
+
+// ═══════════════════════════════════════
+// SMOOTH SCROLL
+// ═══════════════════════════════════════
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const target=document.querySelector(a.getAttribute('href'));
+    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+</script>
+</body>
+</html>
