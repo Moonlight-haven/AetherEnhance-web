@@ -288,15 +288,14 @@
 <script>
 (function () {
   // ═══════════════════════════════════════════════════════════
-  // CREDENTIALS & ENVIRONMENT (hardcoded for local test)
+  // CREDENTIALS & ENVIRONMENT (Vercel relative endpoints)
   // ═══════════════════════════════════════════════════════════
-  const API_BASE       = 'https://moonlightty-aether-patcher.hf.space';
-  const API_KEY        = 'aether_patch_secret_key_2026';
-  const HF_TOKEN       = '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';
-  const TIKTOK_CLIENT_KEY = 'awm0jgm4w8o7m0vg'; // optional fallback client key / secret slot
-  const UPLOAD_ENDPOINT = API_BASE + '/api/tiktok/upload';
-  const EXCHANGE_ENDPOINT = API_BASE + '/api/tiktok/exchange-token';
-  const USERINFO_ENDPOINT = API_BASE + '/api/tiktok/userinfo';
+  const API_KEY           = 'aether_patch_secret_key_2026';
+  const TIKTOK_CLIENT_KEY = 'awm0jgm4w8o7m0vg';
+  // Relative paths → Vercel serverless functions (same origin)
+  const UPLOAD_ENDPOINT   = '/api/tiktok/post-video';
+  const EXCHANGE_ENDPOINT = '/api/tiktok/exchange-token';
+  const USERINFO_ENDPOINT = '/api/tiktok/userinfo';
 
   // ── State ──
   const state = {
@@ -448,8 +447,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': API_KEY,
-          'Authorization': `Bearer ${HF_TOKEN}`
+          'X-API-Key': API_KEY
         },
         body: JSON.stringify({ code, code_verifier: codeVerifier })
       });
@@ -688,8 +686,9 @@
         const xhr = new XMLHttpRequest();
         xhr.open('POST', UPLOAD_ENDPOINT);
         xhr.setRequestHeader('X-API-Key', API_KEY);
-        xhr.setRequestHeader('Authorization', `Bearer ${HF_TOKEN}`);
+        // TikTok user token (if authorized) — no Hugging Face headers
         if (state.accessToken) {
+          xhr.setRequestHeader('Authorization', `Bearer ${state.accessToken}`);
           xhr.setRequestHeader('X-TikTok-Token', state.accessToken);
         }
         if (TIKTOK_CLIENT_KEY) {
