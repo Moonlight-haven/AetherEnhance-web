@@ -1,85 +1,123 @@
-// api/tiktok/exchange-token.js
+// /api/tiktok/exchange-token.js
+// Vercel serverless function (Node.js runtime).
+// Exchanges a TikTok OAuth "code" + PKCE "code_verifier" for an access token.
 //
-// POST /api/tiktok/exchange-token
-// Body: { "code": "<auth code from TikTok redirect>", "code_verifier": "<PKCE verifier>" }
-//
-// Exchanges an authorization code for an access token using TikTok's
-// OAuth v2 token endpoint. Credentials are read from environment variables
-// (set these in your Vercel project settings, never in code):
+// Required Vercel env vars (Project Settings → Environment Variables):
 //   TIKTOK_CLIENT_KEY
 //   TIKTOK_CLIENT_SECRET
-//   TIKTOK_REDIRECT_URI   (optional, but required by TikTok if used during auth)
+//   TIKTOK_REDIRECT_URI   (must exactly match the one used in the auth request)
 
-module.exports = async (req, res) => {
+const { applyCors } = require('../_utils/cors');
+
+module.exports = async function handler(req, res) {
+  // CORS headers must be set on every response, including errors.
+  // applyCors() also handles the OPTIONS preflight (returns 200 immediately).
+  if (applyCors(req, res)) return;
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+    res.status(405).json({ error: 'method_not_allowed', message: 'Use POST' });
+    return;
   }
 
   try {
-    const { code, code_verifier: codeVerifier } = req.body || {};
+    // Vercel usually parses JSON bodies automatically, but guard against
+    // string bodies (e.g. when running under a plain Node http server).
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch (_) { body = {}; }
+    }
+    body = body || {};
 
-    if (!code || !codeVerifier) {
-      return res.status(400).json({
-        error: 'Missing required fields: "code" and "code_verifier" are both required.',
+    const { code, code_verifier } = body;
+
+    if (!code || !code_verifier) {
+      res.status(400).json({
+        error: 'invalid_request',
+        message: 'Missing required fields: code and code_verifier'
       });
+      return;
     }
 
-    const clientKey = process.env.TIKTOK_CLIENT_KEY;
-    const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
-    const redirectUri = process.env.TIKTOK_REDIRECT_URI;
+    const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY;
+    const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET;
+    const REDIRECT_URI = process.env.TIKTOK_REDIRECT_URI;
 
-    if (!clientKey || !clientSecret) {
-      console.error('TikTok credentials are not configured in environment variables.');
-      return res.status(500).json({ error: 'Server is not configured for TikTok OAuth.' });
+    if (!CLIENT_KEY || !CLIENT_SECRET || !REDIRECT_URI) {
+      console.error('[exchange-token] Missing server env vars', {
+        hasClientKey: !!CLIENT_KEY,
+        hasClientSecret: !!CLIENT_SECRET,
+        hasRedirectUri: !!REDIRECT_URI
+      });
+      res.status(500).json({
+        error: 'server_misconfigured',
+        message: 'TikTok credentials are not configured on the server'
+      });
+      return;
     }
 
     const params = new URLSearchParams({
-      client_key: clientKey,
-      client_secret: clientSecret,
+      client_key: CLIENT_KEY,
+      client_secret: CLIENT_SECRET,
       code,
       grant_type: 'authorization_code',
-      code_verifier: codeVerifier,
+      redirect_uri: REDIRECT_URI,
+      code_verifier
     });
 
-    if (redirectUri) {
-      params.append('redirect_uri', redirectUri);
-    }
-
-    const tiktokResponse = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+    const tiktokRes = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache'
       },
-      body: params.toString(),
+      body: params.toString()
     });
 
-    let data;
+    const rawText = await tiktokRes.text();
+    let tiktokData;
     try {
-      data = await tiktokResponse.json();
-    } catch (parseErr) {
-      console.error('Failed to parse TikTok token response:', parseErr);
-      return res.status(502).json({ error: 'Invalid response received from TikTok.' });
-    }
-
-    if (!tiktokResponse.ok || data.error) {
-      return res.status(tiktokResponse.status || 400).json({
-        error: data.error_description || data.error || 'Failed to exchange authorization code.',
+      tiktokData = JSON.parse(rawText);
+    } catch (_) {
+      console.error('[exchange-token] Non-JSON response from TikTok', {
+        status: tiktokRes.status,
+        rawText
       });
+      res.status(502).json({
+        error: 'bad_gateway',
+        message: 'TikTok returned a non-JSON response',
+        upstream_status: tiktokRes.status
+      });
+      return;
     }
 
-    return res.status(200).json({
-      access_token: data.access_token,
-      open_id: data.open_id,
-      refresh_token: data.refresh_token,
-      expires_in: data.expires_in,
-      refresh_expires_in: data.refresh_expires_in,
-      scope: data.scope,
-      token_type: data.token_type,
+    if (!tiktokRes.ok || tiktokData.error) {
+      console.error('[exchange-token] TikTok token exchange failed', {
+        status: tiktokRes.status,
+        data: tiktokData
+      });
+      res.status(tiktokRes.status || 400).json({
+        error: tiktokData.error || 'tiktok_error',
+        message: tiktokData.error_description || 'TikTok rejected the token exchange',
+        details: tiktokData
+      });
+      return;
+    }
+
+    // TikTok v2 returns fields at the top level: access_token, open_id,
+    // refresh_token, expires_in, scope, token_type
+    res.status(200).json({
+      access_token: tiktokData.access_token,
+      refresh_token: tiktokData.refresh_token,
+      open_id: tiktokData.open_id,
+      expires_in: tiktokData.expires_in,
+      scope: tiktokData.scope,
+      token_type: tiktokData.token_type
     });
   } catch (err) {
-    console.error('TikTok exchange-token error:', err);
-    return res.status(500).json({ error: 'Internal server error while exchanging token.' });
+    console.error('[exchange-token] Unhandled server error', err);
+    res.status(500).json({
+      error: 'internal_error',
+      message: err && err.message ? err.message : 'Unexpected server error'
+    });
   }
 };
