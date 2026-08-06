@@ -381,12 +381,34 @@
 <script>
 (function(){
 // ═══════════════════════════════════════
-// READ CONFIG FROM CENTRALIZED config.js
+// READ CONFIG FROM CENTRALIZED config.js + Vercel defaults
 // ═══════════════════════════════════════
-const API = window.AETHER_API_CONFIG;
-if (!API) {
-  alert('Configuration missing! Please ensure config.js is loaded before this page.');
-  return;
+// Production (Vercel): relative serverless routes under /api
+// config.js may override CLIENT_KEY / REDIRECT_URI / SERVER_API_ROOT
+const API = Object.assign({
+  SERVER_API_ROOT: '/api',
+  CLIENT_KEY: '',
+  REDIRECT_URI: (typeof window !== 'undefined'
+    ? window.location.origin + window.location.pathname
+    : '')
+}, window.AETHER_API_CONFIG || {});
+
+// Normalize root so paths resolve to:
+//   /api/tiktok/exchange-token
+//   /api/tiktok/userinfo
+//   /api/tiktok/search-creator
+//   /api/optimize-video
+(function normalizeApiRoot() {
+  let root = String(API.SERVER_API_ROOT || '/api').replace(/\/$/, '');
+  // If config pointed at .../api/tiktok, strip trailing /tiktok
+  if (/\/tiktok$/i.test(root)) root = root.replace(/\/tiktok$/i, '') || '/api';
+  // Empty or invalid → default relative Vercel base
+  if (!root || root === '/') root = '/api';
+  API.SERVER_API_ROOT = root;
+})();
+
+if (!API.CLIENT_KEY) {
+  console.warn('[Aether] CLIENT_KEY missing — set it in config.js for TikTok OAuth.');
 }
 
 // ═══════════════════════════════════════
@@ -590,19 +612,38 @@ async function exchangeTokenWithPKCE(code) {
 // FETCH USER PROFILE
 // ═══════════════════════════════════════
 async function fetchUserProfile(token) {
+  if (!token) return;
   try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: token })
+    // Prefer GET with Bearer (Vercel userinfo.js); fall back to POST body
+    let res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
+    if (!res.ok && res.status !== 404) {
+      // Some deployments still expect POST
+      res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: token })
+      });
+    }
     if (res.ok) {
       const profile = await res.json();
-      state.userInfo = { ...state.userInfo, ...profile };
-      updateProfileUI(profile);
+      const normalized = {
+        display_name: profile.display_name || profile.displayName || profile.username,
+        username: profile.username || profile.display_name,
+        avatar_url: profile.avatar_url || profile.avatarUrl || profile.avatar_url_100 || profile.avatar
+      };
+      state.userInfo = { ...state.userInfo, ...profile, ...normalized };
+      updateProfileUI(state.userInfo);
+    } else {
+      console.error('[Userinfo] Error', res.status, await res.text().catch(() => ''));
     }
   } catch (err) {
-    console.log('Userinfo fetch skipped');
+    console.log('Userinfo fetch skipped', err);
   }
 }
 function updateProfileUI(profile) {
