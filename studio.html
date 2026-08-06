@@ -528,8 +528,8 @@ async function openTikTokAuthPopup() {
   localStorage.setItem('tiktok_code_verifier', codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-  // TikTok V2 scopes (comma-separated, not URL-encoded commas) — no video.publish
-  const SCOPES = "user.info.basic,user.info.profile,video.upload";
+  // TikTok V2 scopes (comma-separated, not URL-encoded commas)
+  const SCOPES = "user.info.basic,user.info.profile,video.upload,video.publish";
 
   const authUrl = "https://www.tiktok.com/v2/auth/authorize/" +
     "?client_key=" + encodeURIComponent(API.CLIENT_KEY) +
