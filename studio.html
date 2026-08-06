@@ -388,8 +388,17 @@
 
 <script>
 (function(){
-const API = window.AETHER_API_CONFIG;
-if (!API) { alert('Configuration missing! Please ensure config.js is loaded before this page.'); return; }
+// Prefer config.js when present; otherwise use relative Vercel API root under /api/tiktok
+const API = Object.assign({
+  SERVER_API_ROOT: '/api/tiktok',
+  CLIENT_KEY: '',
+  REDIRECT_URI: window.location.origin + window.location.pathname
+}, window.AETHER_API_CONFIG || {});
+// Force base to live Vercel TikTok routes (avoids double /tiktok prefix)
+API.SERVER_API_ROOT = '/api/tiktok';
+if (!API.CLIENT_KEY) {
+  console.warn('[Aether] CLIENT_KEY missing from config.js — OAuth will fail until set.');
+}
 window.AETHER_OPTIMIZED_BLOB = null;
 const state = { isAuthorized: false, accessToken: null, userInfo: null, videoFile: null, videoUrl: null, videoMetadata: null, isPlaying: false, isOptimized: false, selectedMentions: [], selectedLocation: null };
 const $ = (s) => document.querySelector(s);
@@ -441,21 +450,46 @@ async function exchangeTokenWithPKCE(code) {
   const codeVerifier = localStorage.getItem('tiktok_code_verifier');
   if (!codeVerifier) { showToast('⚠ PKCE verifier missing'); return; }
   try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/exchange-token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, code_verifier: codeVerifier }) });
+    const res = await fetch(`${API.SERVER_API_ROOT}/exchange-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, code_verifier: codeVerifier })
+    });
     if (res.ok) {
       const data = await res.json();
       localStorage.removeItem('tiktok_code_verifier');
       setAuthorized(data.access_token, data.user_info || null);
       fetchUserProfile(data.access_token);
-    } else { const errData = await res.json().catch(() => ({})); showToast('⚠ Auth failed: ' + (errData.error || 'Unknown error')); localStorage.removeItem('tiktok_code_verifier'); }
-  } catch (err) { showToast('⚠ Connection error. Is the backend running?'); console.error('Token exchange error:', err); localStorage.removeItem('tiktok_code_verifier'); }
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      showToast('⚠ Auth failed: ' + (errData.error || 'Unknown error'));
+      localStorage.removeItem('tiktok_code_verifier');
+    }
+  } catch (err) {
+    showToast('⚠ Connection error. Is the backend running?');
+    console.error('Token exchange error:', err);
+    localStorage.removeItem('tiktok_code_verifier');
+  }
 }
 
 async function fetchUserProfile(token) {
   try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ access_token: token }) });
-    if (res.ok) { const profile = await res.json(); state.userInfo = { ...state.userInfo, ...profile }; updateProfileUI(profile); }
-  } catch (err) { console.log('Userinfo fetch skipped'); }
+    // GET /api/tiktok/userinfo — pass token via Authorization header
+    const res = await fetch(`${API.SERVER_API_ROOT}/userinfo`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (res.ok) {
+      const profile = await res.json();
+      state.userInfo = { ...state.userInfo, ...profile };
+      updateProfileUI(profile);
+    }
+  } catch (err) {
+    console.log('Userinfo fetch skipped', err);
+  }
 }
 
 function updateProfileUI(profile) {
@@ -573,7 +607,47 @@ $('#fullscreen-btn').addEventListener('click', (e) => { e.stopPropagation(); pre
 
 const captionInput = $('#caption-input');
 captionInput.addEventListener('input', () => { const len = captionInput.value.length; $('#char-count').textContent = len + ' / 2,200'; $('#char-count').style.color = len > 2000 ? 'var(--tt-red)' : 'var(--text-tertiary)'; const val = captionInput.value; const cursorPos = captionInput.selectionStart; const textBeforeCursor = val.substring(0, cursorPos); const atMatch = textBeforeCursor.match(/@(\w*)$/); if (atMatch && state.isOptimized) { debounce('caption-mention', () => searchCreators(atMatch[1]), 300); } else { $('#mention-results').classList.remove('active'); } });
-async function searchCreators(query) { if (!query) { $('#mention-results').classList.remove('active'); return; } try { const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/search-creator`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, access_token: state.accessToken }) }); let users = []; if (res.ok) { const data = await res.json(); users = data.creators || data.users || []; } if (users.length === 0) { users = [{ username: query + '_creator', display_name: query.charAt(0).toUpperCase() + query.slice(1) + ' Creator' }, { username: 'official_' + query, display_name: 'Official ' + query }]; } const results = $('#mention-results'); results.innerHTML = users.map(u => `<div class="dropdown-item" data-username="${u.username}"><div class="dropdown-item-avatar"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div><div style="font-weight:600;color:var(--text-primary)">${u.display_name || u.username}</div><div style="font-size:9px;color:var(--text-tertiary)">@${u.username}</div></div></div>`).join(''); results.classList.add('active'); results.querySelectorAll('.dropdown-item').forEach(item => { item.addEventListener('click', function() { const username = this.dataset.username; const val = captionInput.value; const cursorPos = captionInput.selectionStart; const textBefore = val.substring(0, cursorPos); const textAfter = val.substring(cursorPos); const updatedBefore = textBefore.replace(/@\w*$/, '@' + username + ' '); captionInput.value = updatedBefore + textAfter; captionInput.focus(); captionInput.dispatchEvent(new Event('input')); results.classList.remove('active'); showToast('✓ @' + username + ' mentioned'); }); }); } catch (err) { console.log('Mention search fallback:', err.message); } }
+async function searchCreators(query) {
+  if (!query) { $('#mention-results').classList.remove('active'); return; }
+  try {
+    const res = await fetch(`${API.SERVER_API_ROOT}/search-creator`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, access_token: state.accessToken })
+    });
+    let users = [];
+    if (res.ok) {
+      const data = await res.json();
+      users = data.creators || data.users || [];
+    }
+    if (users.length === 0) {
+      users = [
+        { username: query + '_creator', display_name: query.charAt(0).toUpperCase() + query.slice(1) + ' Creator' },
+        { username: 'official_' + query, display_name: 'Official ' + query }
+      ];
+    }
+    const results = $('#mention-results');
+    results.innerHTML = users.map(u => `<div class="dropdown-item" data-username="${u.username}"><div class="dropdown-item-avatar"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><div><div style="font-weight:600;color:var(--text-primary)">${u.display_name || u.username}</div><div style="font-size:9px;color:var(--text-tertiary)">@${u.username}</div></div></div>`).join('');
+    results.classList.add('active');
+    results.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const username = this.dataset.username;
+        const val = captionInput.value;
+        const cursorPos = captionInput.selectionStart;
+        const textBefore = val.substring(0, cursorPos);
+        const textAfter = val.substring(cursorPos);
+        const updatedBefore = textBefore.replace(/@\w*$/, '@' + username + ' ');
+        captionInput.value = updatedBefore + textAfter;
+        captionInput.focus();
+        captionInput.dispatchEvent(new Event('input'));
+        results.classList.remove('active');
+        showToast('✓ @' + username + ' mentioned');
+      });
+    });
+  } catch (err) {
+    console.log('Mention search fallback:', err.message);
+  }
+}
 window.insertText = function(text) { const c = captionInput, pos = c.selectionStart; const before = c.value.substring(0, pos), after = c.value.substring(pos); const sep = (before.endsWith(' ') || before.length === 0) ? '' : ' '; c.value = before + sep + text + ' ' + after; c.focus(); c.dispatchEvent(new Event('input')); };
 const debounceTimers = {};
 function debounce(key, fn, delay = 300) { clearTimeout(debounceTimers[key]); debounceTimers[key] = setTimeout(fn, delay); }
@@ -630,11 +704,11 @@ async function postToTikTok() {
     
     console.log('[TikTok] Posting video... Size:', (window.AETHER_OPTIMIZED_BLOB.size / 1024 / 1024).toFixed(1), 'MB');
     
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/post-video`, {
+    const res = await fetch(`${API.SERVER_API_ROOT}/post-video`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${state.accessToken}`
-        // Do NOT set Content-Type - browser sets it automatically for FormData
+        // Do NOT set Content-Type — browser sets multipart boundary for FormData
       },
       body: formData
     });
