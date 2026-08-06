@@ -254,14 +254,14 @@
 <div class="processing-overlay" id="processing-overlay">
   <div class="processing-card">
     <div class="processing-engine-ring"><div class="engine-ring-outer"></div><div class="engine-ring-inner"></div><div class="engine-ring-core"></div></div>
-    <div class="processing-title" id="processing-title">Quality Bypass Active</div>
+    <div class="processing-title" id="processing-title">Uploading to TikTok</div>
     <div class="processing-subtitle" id="processing-subtitle">Initializing engine...</div>
     <div class="processing-progress-bar-wrap"><div class="processing-progress-bar-fill" id="progress-bar-fill"></div></div>
     <div class="processing-step-list">
       <div class="proc-step active" id="proc-step-1"><span class="proc-step-dot"></span>Verifying TikTok authorization</div>
-      <div class="proc-step" id="proc-step-2"><span class="proc-step-dot"></span>Quality bypass remuxing (H.264 high)</div>
-      <div class="proc-step" id="proc-step-3"><span class="proc-step-dot"></span>Uploading to TikTok CDN</div>
-      <div class="proc-step" id="proc-step-4"><span class="proc-step-dot"></span>Attaching metadata & publishing</div>
+      <div class="proc-step" id="proc-step-2"><span class="proc-step-dot"></span>Uploading video file</div>
+      <div class="proc-step" id="proc-step-3"><span class="proc-step-dot"></span>Publishing to TikTok</div>
+      <div class="proc-step" id="proc-step-4"><span class="proc-step-dot"></span>Upload complete</div>
     </div>
   </div>
 </div>
@@ -363,7 +363,7 @@
       <div class="toggle-row"><div class="toggle-label-text">Disable Duet</div><label class="toggle-switch"><input type="checkbox" id="disable-duet" disabled><span class="toggle-slider"></span></label></div>
       <div class="toggle-row"><div class="toggle-label-text">Disable Stitch</div><label class="toggle-switch"><input type="checkbox" id="disable-stitch" disabled><span class="toggle-slider"></span></label></div>
     </div>
-    <div class="settings-section"><button class="main-upload-btn" id="main-upload-btn" disabled style="background:var(--white);color:var(--bg);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Optimize Video Quality</button></div>
+    <div class="settings-section"><button class="main-upload-btn" id="main-upload-btn" disabled style="background:var(--tt-red);color:white;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload to TikTok</button></div>
     <div class="settings-section" id="status-section" style="display:none"><label class="settings-label">Source Video Specifications</label>
       <table class="status-table"><thead><tr><th>Property</th><th>Current</th><th>Target</th><th>Status</th></tr></thead><tbody>
         <tr><td style="color:var(--text-muted)">File Size</td><td class="status-val" id="stat-size">—</td><td style="color:var(--text-muted)">&lt;500 MB</td><td class="status-indicator" id="stat-size-status">—</td></tr>
@@ -412,11 +412,6 @@ if (!API.CLIENT_KEY) {
 }
 
 // ═══════════════════════════════════════
-// GLOBAL OPTIMIZED STREAM STORAGE
-// ═══════════════════════════════════════
-window.AETHER_OPTIMIZED_BLOB = null;
-
-// ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
 const state = {
@@ -427,7 +422,6 @@ const state = {
   videoUrl: null,
   videoMetadata: null,
   isPlaying: false,
-  isOptimized: false,
   selectedMentions: [],
   selectedLocation: null
 };
@@ -754,9 +748,10 @@ function updateAuthUI() {
     statusEl.className = 'account-status-text connected';
     unlinkBtn.style.display = 'inline-block';
     connectBtn.style.display = 'none';
-    if (state.videoFile && state.isOptimized) {
+    if (state.videoFile) {
       $('#header-upload-btn').disabled = false;
       $('#main-upload-btn').disabled = false;
+      setMetadataFieldsDisabled(false);
     }
   } else {
     badge.classList.remove('connected');
@@ -878,31 +873,26 @@ function handleVideoFile(file) {
   if (file.size > 500 * 1024 * 1024) return showToast('⚠ File must be under 500 MB');
   state.videoFile = file;
   state.videoUrl = URL.createObjectURL(file);
-  state.isOptimized = false;
-  window.AETHER_OPTIMIZED_BLOB = null;
   previewVideo.src = state.videoUrl;
   $('#preview-placeholder').style.display = 'none';
   $('#video-preview-wrap').classList.add('active');
   previewZone.classList.add('has-video');
-  setMetadataFieldsDisabled(true);
-  $('#main-upload-btn').disabled = false;
-  $('#header-upload-btn').disabled = true;
-  resetOptimizeButton();
+  // Metadata fields (caption, privacy, etc.) unlock as soon as a video is
+  // selected, provided the user is already authorized with TikTok.
+  setMetadataFieldsDisabled(!state.isAuthorized);
+  $('#main-upload-btn').disabled = !state.isAuthorized;
+  $('#header-upload-btn').disabled = !state.isAuthorized;
+  resetUploadButton();
   inspectVideoMedia(file);
   previewVideo.play().then(() => { state.isPlaying = true; updatePlayPauseIcon(); }).catch(() => {});
 }
-function resetOptimizeButton() {
+function resetUploadButton() {
   const btn = $('#main-upload-btn');
-  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Optimize Video Quality';
-  btn.style.background = 'var(--white)';
-  btn.style.color = 'var(--bg)';
-}
-function setDownloadPatchedButton() {
-  const btn = $('#main-upload-btn');
-  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>⬇ Download Patched Master';
-  btn.style.background = 'linear-gradient(90deg, var(--tt-cyan), #00f2fe)';
-  btn.style.color = '#050505';
-  btn.style.fontWeight = '800';
+  btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload to TikTok';
+  btn.style.background = 'var(--tt-red)';
+  btn.style.color = 'white';
+  btn.style.fontWeight = '700';
+  btn.disabled = false;
 }
 async function inspectVideoMedia(file) {
   $('#status-section').style.display = 'block';
@@ -977,7 +967,7 @@ captionInput.addEventListener('input', () => {
   const cursorPos = captionInput.selectionStart;
   const textBeforeCursor = val.substring(0, cursorPos);
   const atMatch = textBeforeCursor.match(/@(\w*)$/);
-  if (atMatch && state.isOptimized) {
+  if (atMatch) {
     debounce('caption-mention', () => searchCreators(atMatch[1]), 300);
   } else {
     $('#mention-results').classList.remove('active');
@@ -1059,26 +1049,33 @@ document.addEventListener('click', (e) => {
 });
 
 // ═══════════════════════════════════════
-// OPTIMIZE PIPELINE
+// UPLOAD TO TIKTOK (direct — testing mode)
 // ═══════════════════════════════════════
-async function executeOptimizePipeline() {
+async function executeTikTokUpload() {
   if (!state.videoFile) return showToast('⚠ Please select a video first');
+  if (!state.isAuthorized || !state.accessToken) {
+    showToast('⚠ Please authorize with TikTok first');
+    return;
+  }
+
   const overlay = $('#processing-overlay');
   const subtitle = $('#processing-subtitle');
   const title = $('#processing-title');
   const progressBar = $('#progress-bar-fill');
   const steps = ['proc-step-1', 'proc-step-2', 'proc-step-3', 'proc-step-4'];
+
   progressBar.style.width = '0%';
   progressBar.style.background = 'linear-gradient(90deg, var(--tt-red), var(--tt-cyan))';
   steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
-  $('#proc-step-1').classList.add('active');
-  title.textContent = 'Quality Bypass Active';
+  title.textContent = 'Uploading to TikTok';
   overlay.classList.add('active');
   $('#header-upload-btn').disabled = true;
   $('#main-upload-btn').disabled = true;
+
   function setStep(idx, label, prog) {
     steps.forEach((id, i) => {
       const el = $('#' + id);
+      if (!el) return;
       if (i < idx) { el.classList.remove('active'); el.classList.add('done'); }
       else if (i === idx) { el.classList.add('active'); el.classList.remove('done'); }
       else { el.classList.remove('active', 'done'); }
@@ -1086,118 +1083,77 @@ async function executeOptimizePipeline() {
     subtitle.textContent = label;
     progressBar.style.width = prog + '%';
   }
+
+  const endpoint = `${API.SERVER_API_ROOT}/tiktok/upload`;
+
   try {
-    setStep(0, 'Connecting to bypass engine...', 8);
-    await new Promise(r => setTimeout(r, 400));
-    setStep(1, 'Quality bypass remuxing (H.264 high profile)...', 25);
+    setStep(0, 'Verifying TikTok authorization...', 10);
+    await new Promise(r => setTimeout(r, 300));
+
+    setStep(1, 'Uploading video file...', 35);
     const formData = new FormData();
     formData.append('video', state.videoFile);
-    let optimizedBlob;
+    formData.append('access_token', state.accessToken);
+    formData.append('caption', $('#caption-input').value || '');
+    formData.append('privacy_level', $('#privacy-select').value || 'SELF_ONLY');
+    formData.append('disable_comment', $('#disable-comment').checked ? 'true' : 'false');
+    formData.append('disable_duet', $('#disable-duet').checked ? 'true' : 'false');
+    formData.append('disable_stitch', $('#disable-stitch').checked ? 'true' : 'false');
+
+    let res;
     try {
-      const res = await fetch(`${API.SERVER_API_ROOT}/optimize-video`, { method: 'POST', body: formData });
-      if (res.ok) { optimizedBlob = await res.blob(); }
-      else { throw new Error('Server returned: ' + res.status); }
-    } catch (err) {
-      console.log('Optimization fallback:', err.message);
-      await new Promise(r => setTimeout(r, 2000));
-      optimizedBlob = new Blob([state.videoFile], { type: 'video/mp4' });
+      res = await fetch(endpoint, { method: 'POST', body: formData });
+    } catch (networkErr) {
+      console.error('[TikTok upload] Network/CORS failure calling', endpoint, {
+        name: networkErr.name,
+        message: networkErr.message,
+        stack: networkErr.stack
+      });
+      throw new Error('Connection error. Is the backend running?');
     }
-    window.AETHER_OPTIMIZED_BLOB = optimizedBlob;
-    state.isOptimized = true;
-    setStep(2, 'Verifying stream integrity...', 70);
-    await new Promise(r => setTimeout(r, 600));
-    setStep(3, 'Optimization complete — Master patched', 100);
+
+    setStep(2, 'Publishing to TikTok...', 70);
+    const rawBody = await res.text();
+    let data = {};
+    try { data = rawBody ? JSON.parse(rawBody) : {}; } catch (_) {
+      console.error('[TikTok upload] Non-JSON response', { status: res.status, rawBody });
+    }
+
+    if (!res.ok) {
+      console.error('[TikTok upload] HTTP error', { endpoint, status: res.status, statusText: res.statusText, body: data && Object.keys(data).length ? data : rawBody });
+      throw new Error('Upload failed (' + res.status + '): ' + (data.error || data.message || rawBody || 'Unknown error'));
+    }
+
+    setStep(3, 'Upload complete', 100);
     progressBar.style.background = 'var(--green)';
-    subtitle.textContent = 'Optimization complete — Download ready';
-    $('#stat-fps').textContent = '✓ Managed';
-    $('#stat-fps-status').textContent = '✓ Managed';
-    $('#stat-fps-status').className = 'status-indicator green';
+    subtitle.textContent = 'Published to TikTok successfully';
+
     setTimeout(() => {
       overlay.classList.remove('active');
       progressBar.style.width = '0%';
       steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
-      setMetadataFieldsDisabled(false);
-      setDownloadPatchedButton();
-      if (state.isAuthorized) { $('#header-upload-btn').disabled = false; }
-      showToast('✓ Master patched — Ready to download');
+      $('#header-upload-btn').disabled = false;
+      $('#main-upload-btn').disabled = false;
+      showToast('✓ Uploaded to TikTok');
     }, 1200);
   } catch (err) {
     overlay.classList.remove('active');
+    $('#header-upload-btn').disabled = false;
     $('#main-upload-btn').disabled = false;
-    showToast('⚠ Optimization failed: ' + err.message);
-    console.error('Optimize error:', err);
+    showToast('⚠ ' + err.message);
+    console.error('[TikTok upload] Failed:', err);
   }
-}
-
-// ═══════════════════════════════════════
-// DOWNLOAD PIPELINE
-// ═══════════════════════════════════════
-async function executeDownloadPipeline() {
-  if (!state.isOptimized) return executeOptimizePipeline();
-  if (!window.AETHER_OPTIMIZED_BLOB) return showToast('⚠ No optimized stream found');
-  const overlay = $('#processing-overlay');
-  const subtitle = $('#processing-subtitle');
-  const title = $('#processing-title');
-  const progressBar = $('#progress-bar-fill');
-  const steps = ['proc-step-1', 'proc-step-2', 'proc-step-3', 'proc-step-4'];
-  progressBar.style.width = '0%';
-  progressBar.style.background = 'linear-gradient(90deg, var(--tt-cyan), #00f2fe)';
-  steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
-  $('#proc-step-1').classList.add('active');
-  title.textContent = 'Downloading Patched Master';
-  subtitle.textContent = 'Preparing high-fidelity download...';
-  overlay.classList.add('active');
-  $('#header-upload-btn').disabled = true;
-  $('#main-upload-btn').disabled = true;
-  const downloadUrl = URL.createObjectURL(window.AETHER_OPTIMIZED_BLOB);
-  const a = document.createElement('a');
-  a.href = downloadUrl;
-  a.download = 'aether_master_edit_patched.mp4';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(downloadUrl);
-  let percent = 1;
-  progressBar.style.width = '1%';
-  const countInterval = setInterval(() => {
-    percent += Math.floor(Math.random() * 6) + 1;
-    if (percent >= 100) { percent = 100; clearInterval(countInterval); }
-    progressBar.style.width = percent + '%';
-    subtitle.textContent = 'Downloading... ' + percent + '%';
-  }, 120);
-  setTimeout(() => {
-    clearInterval(countInterval);
-    progressBar.style.width = '100%';
-    progressBar.style.background = 'var(--green)';
-    subtitle.textContent = 'Download complete — aether_master_edit_patched.mp4';
-    steps.forEach(id => { const el = $('#' + id); if (el) { el.classList.remove('active'); el.classList.add('done'); } });
-    setTimeout(() => {
-      overlay.classList.remove('active');
-      progressBar.style.width = '0%';
-      progressBar.style.background = 'linear-gradient(90deg, var(--tt-red), var(--tt-cyan))';
-      steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
-      $('#proc-step-1').classList.add('active');
-      $('#header-upload-btn').disabled = false;
-      $('#main-upload-btn').disabled = false;
-      setDownloadPatchedButton();
-      showToast('✓ Master patched file downloaded');
-    }, 2000);
-  }, 2500);
 }
 
 // ═══════════════════════════════════════
 // MAIN BUTTON HANDLER
 // ═══════════════════════════════════════
-$('#main-upload-btn').addEventListener('click', () => {
-  if (!state.isOptimized) executeOptimizePipeline();
-  else executeDownloadPipeline();
-});
-$('#header-upload-btn').addEventListener('click', executeDownloadPipeline);
+$('#main-upload-btn').addEventListener('click', executeTikTokUpload);
+$('#header-upload-btn').addEventListener('click', executeTikTokUpload);
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
-    if (!state.isOptimized) executeOptimizePipeline();
-    else executeDownloadPipeline();
+    executeTikTokUpload();
   }
 });
 })();
