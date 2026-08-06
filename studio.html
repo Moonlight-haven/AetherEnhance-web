@@ -565,47 +565,78 @@ async function openTikTokAuthPopup() {
 async function exchangeTokenWithPKCE(code) {
   const codeVerifier = localStorage.getItem('tiktok_code_verifier');
   if (!codeVerifier) { showToast('⚠ PKCE verifier missing'); return; }
+
+  const endpoint = `${API.SERVER_API_ROOT}/tiktok/exchange-token`;
+  let res;
+
+  // ── Step 1: perform the fetch itself. Failures here are network/CORS/DNS
+  // level (the server never responded), so there is no status/body to read.
   try {
-    const res = await fetch(`${API.SERVER_API_ROOT}/tiktok/exchange-token`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+    res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, code_verifier: codeVerifier })
     });
-    const data = await res.json().catch(() => ({}));
-    localStorage.removeItem('tiktok_code_verifier');
-
-    if (!res.ok) {
-      showToast('⚠ Auth failed: ' + (data.error || data.message || JSON.stringify(data) || 'Unknown error'));
-      console.error('[Auth exchange] HTTP', res.status, data);
-      return;
-    }
-
-    // Support common response shapes; require a real access_token
-    const accessToken =
-      data.access_token ||
-      data.accessToken ||
-      (data.data && (data.data.access_token || data.data.accessToken)) ||
-      null;
-    const userInfo =
-      data.user_info ||
-      data.userInfo ||
-      data.user ||
-      (data.data && (data.data.user_info || data.data.user)) ||
-      null;
-
-    if (!accessToken) {
-      showToast('⚠ Auth failed: no access_token in response');
-      console.error('[Auth exchange] Missing access_token:', data);
-      return;
-    }
-
-    setAuthorized(accessToken, userInfo);
-    fetchUserProfile(accessToken);
-  } catch (err) {
-    // Do NOT fall back to mock / sandbox authorization
+  } catch (networkErr) {
+    // True network failure: DNS error, CORS block, server unreachable, offline, etc.
+    console.error('[Auth exchange] Network/CORS failure calling', endpoint, {
+      name: networkErr.name,
+      message: networkErr.message,
+      stack: networkErr.stack
+    });
     showToast('⚠ Connection error. Is the backend running?');
-    console.error('Token exchange error:', err);
     localStorage.removeItem('tiktok_code_verifier');
+    return;
   }
+
+  // ── Step 2: we got a response — read status + raw body for full diagnostics
+  // before attempting JSON parsing, so malformed/empty bodies are still logged.
+  let rawBody = '';
+  let data = {};
+  try {
+    rawBody = await res.text();
+    data = rawBody ? JSON.parse(rawBody) : {};
+  } catch (parseErr) {
+    console.error('[Auth exchange] Failed to parse JSON response', {
+      status: res.status,
+      statusText: res.statusText,
+      rawBody
+    });
+  }
+  localStorage.removeItem('tiktok_code_verifier');
+
+  if (!res.ok) {
+    console.error('[Auth exchange] HTTP error', {
+      endpoint,
+      status: res.status,
+      statusText: res.statusText,
+      body: data && Object.keys(data).length ? data : rawBody
+    });
+    showToast('⚠ Auth failed (' + res.status + '): ' + (data.error || data.message || rawBody || 'Unknown error'));
+    return;
+  }
+
+  // Support common response shapes; require a real access_token
+  const accessToken =
+    data.access_token ||
+    data.accessToken ||
+    (data.data && (data.data.access_token || data.data.accessToken)) ||
+    null;
+  const userInfo =
+    data.user_info ||
+    data.userInfo ||
+    data.user ||
+    (data.data && (data.data.user_info || data.data.user)) ||
+    null;
+
+  if (!accessToken) {
+    console.error('[Auth exchange] Missing access_token in 200 response:', { status: res.status, body: data });
+    showToast('⚠ Auth failed: no access_token in response');
+    return;
+  }
+
+  setAuthorized(accessToken, userInfo);
+  fetchUserProfile(accessToken);
 }
 
 // ═══════════════════════════════════════
