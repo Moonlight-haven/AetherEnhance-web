@@ -6,16 +6,25 @@
 // Proxies a request to TikTok's /v2/user/info/ endpoint and returns the
 // creator's profile fields.
 //
-// IMPORTANT: TikTok's response shape is { data: { user: { ...fields } } }
-// — the fields are nested one level deeper than `data`. Returning `data.data`
-// directly (instead of `data.data.user`) was the bug causing the front-end
-// to never see display_name/avatar_url.
+// ── FIX IN THIS VERSION ───────────────────────────────────────────────────
+// This route never called applyCors(). Same-origin on Vercel it happened to
+// work, but any cross-origin call (local dev on a different port, a preview
+// deployment, the frontend served from anywhere else) failed the preflight
+// and surfaced in the browser as an opaque "Failed to fetch" with no status
+// code. Every other route already had it; this one was the odd one out.
 //
-// Also: only request fields covered by scopes this app actually has
-// (user.info.basic, user.info.profile). follower_count / following_count /
-// likes_count / video_count need the separate "user.info.stats" scope —
-// requesting them without it makes TikTok reject the ENTIRE field list,
-// not just omit those fields, which was silently breaking every field.
+// Retained notes from the previous fix:
+//   TikTok's response shape is { data: { user: { ...fields } } } — the fields
+//   are nested one level deeper than `data`. Returning `data.data` directly
+//   was the bug that stopped the front-end seeing display_name/avatar_url.
+//
+//   Only request fields covered by scopes this app actually holds
+//   (user.info.basic, user.info.profile). follower_count / following_count /
+//   likes_count / video_count need the separate "user.info.stats" scope;
+//   requesting them without it makes TikTok reject the ENTIRE field list
+//   rather than omitting those fields.
+
+const { applyCors } = require('../_utils/cors');
 
 const USER_FIELDS = [
   'open_id',
@@ -29,6 +38,8 @@ const USER_FIELDS = [
 ].join(',');
 
 module.exports = async (req, res) => {
+  if (applyCors(req, res)) return;
+
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'Method not allowed. Use GET.' });
@@ -39,7 +50,7 @@ module.exports = async (req, res) => {
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        error: 'Missing or invalid Authorization header. Expected format: "Bearer <access_token>".',
+        error: 'Missing or invalid Authorization header. Expected format: "Bearer <access_token>".'
       });
     }
 
@@ -54,8 +65,8 @@ module.exports = async (req, res) => {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json'
+      }
     });
 
     const rawText = await tiktokResponse.text();
@@ -78,7 +89,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    // The actual fix: unwrap data.data.user, not data.data
+    // Unwrap data.data.user, not data.data
     const user = (data.data && data.data.user) || {};
     return res.status(200).json(user);
   } catch (err) {
