@@ -6,12 +6,16 @@
 //   TIKTOK_CLIENT_KEY
 //   TIKTOK_CLIENT_SECRET
 //   TIKTOK_REDIRECT_URI   (must exactly match the one used in the auth request)
+//
+// This file's logic was already correct — it is included unchanged apart from
+// trimming the env vars. A trailing newline pasted into the Vercel dashboard
+// is a classic cause of redirect_uri mismatch errors that look like a code bug.
 
 const { applyCors } = require('../_utils/cors');
 
 module.exports = async function handler(req, res) {
   // CORS headers must be set on every response, including errors.
-  // applyCors() also handles the OPTIONS preflight (returns 200 immediately).
+  // applyCors() also handles the OPTIONS preflight.
   if (applyCors(req, res)) return;
 
   if (req.method !== 'POST') {
@@ -38,9 +42,9 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY;
-    const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET;
-    const REDIRECT_URI = process.env.TIKTOK_REDIRECT_URI;
+    const CLIENT_KEY = (process.env.TIKTOK_CLIENT_KEY || '').trim();
+    const CLIENT_SECRET = (process.env.TIKTOK_CLIENT_SECRET || '').trim();
+    const REDIRECT_URI = (process.env.TIKTOK_REDIRECT_URI || '').trim();
 
     if (!CLIENT_KEY || !CLIENT_SECRET || !REDIRECT_URI) {
       console.error('[exchange-token] Missing server env vars', {
