@@ -13,8 +13,8 @@
 // to 500MB, anything over 64MB could never have worked. planChunks() below
 // implements TikTok's actual rules:
 //
-//   • video_size <= 64MB  → one chunk, chunk_size = video_size
-//   • video_size >  64MB  → chunk_size between 5MB and 64MB,
+//   • video_size <  5MB   → one chunk, chunk_size = video_size
+//   • video_size >= 5MB   → chunk_size between 5MB and 64MB,
 //                           total_chunk_count = floor(video_size / chunk_size),
 //                           and the FINAL chunk absorbs the remainder
 //   • at most 1000 chunks
@@ -33,12 +33,18 @@ const MAX_SINGLE_CHUNK = 64 * MB;
 const MAX_CHUNK_COUNT = 1000;
 const TIKTOK_MAX_BYTES = 4 * 1024 * MB; // 4 GB
 
+// Chunk size is a reliability knob, not just a limit. One 12MB PUT across an
+// unstable link is all-or-nothing; three 5MB PUTs can each be retried alone.
+// TikTok's floor is 5MB, so that is the smallest useful chunk. Files under
+// 5MB have to go as a single whole-file chunk — TikTok allows that exception.
+const PREFERRED_CHUNK = 5 * MB;
+
 function planChunks(videoSize) {
-  if (videoSize <= MAX_SINGLE_CHUNK) {
+  if (videoSize < MIN_CHUNK) {
     return { chunk_size: videoSize, total_chunk_count: 1 };
   }
 
-  let chunkSize = 32 * MB;
+  let chunkSize = PREFERRED_CHUNK;
   let totalChunks = Math.floor(videoSize / chunkSize);
 
   if (totalChunks > MAX_CHUNK_COUNT) {
