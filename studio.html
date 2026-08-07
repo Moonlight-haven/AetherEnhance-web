@@ -438,6 +438,9 @@ const API = Object.assign({
   REDIRECT_URI: (typeof window !== 'undefined'
     ? window.location.origin + window.location.pathname
     : '')
+  // Optional. Set in config.js to route chunks through your own server
+  // when the direct browser -> TikTok path is blocked on your network.
+  // e.g. UPLOAD_RELAY: 'https://your-relay.onrender.com/relay'
 }, window.AETHER_API_CONFIG || {});
 
 (function normalizeApiRoot() {
@@ -468,6 +471,7 @@ const state = {
   videoMetadata: null,
   specReport: null,       // result of SPEC.probe()
   specBypassed: false,    // user chose "Upload anyway"
+  fixPlan: null,          // what a re-encode would actually repair
   isProbing: false,
   isConverting: false,
   isPlaying: false,
@@ -1011,6 +1015,7 @@ function renderPreflightReport(report) {
   if (report.ok && report.warnings.length === 0) {
     setPreflight('clear', 'Ready to upload',
       'Frame rate, resolution, duration and format all match TikTok\'s requirements.', false);
+    state.fixPlan = null;
     return;
   }
 
@@ -1020,40 +1025,50 @@ function renderPreflightReport(report) {
       escapeHtml(c.message || '') + '</li>';
   }).join('') + '</ul>';
 
-  if (!report.ok) {
-    const fpsIsTheProblem = report.failures.some(function (f) { return f.id === 'fps'; });
-    const title = fpsIsTheProblem
-      ? 'TikTok will reject this: frame rate'
-      : 'TikTok will reject this';
-
-    setPreflight('blocked', title,
-      'Uploading now returns the same error you saw. Fix these first:' + listHtml,
-      true,
-      buildFixHint(report));
-
-    autofixBtn.textContent = 'Re-encode at ' + report.targetFps + ' fps';
-    autofixBtn.disabled = !report.canAutoFix;
-    if (!report.canAutoFix) {
-      autofixBtn.textContent = 'File too large to convert here';
-    }
-  } else {
+  if (report.ok) {
     setPreflight('caution', 'Worth a look before uploading', listHtml, false);
+    state.fixPlan = null;
+    return;
   }
-}
 
-// The desktop ffmpeg command is faster and lossless-er than doing it in the
-// browser, so offer it alongside the in-page converter.
-function buildFixHint(report) {
-  const fps = report.targetFps || 30;
-  const cmd = 'ffmpeg -i input.mp4 -vf fps=' + fps + ' -r ' + fps +
-    ' -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart output.mp4';
-  let hint = 'Faster on a desktop — run this and upload the result:<br><code>' + escapeHtml(cmd) + '</code>';
-  if (!report.canAutoFix) {
-    hint = 'In-browser conversion is capped at ' + SPEC.formatBytes(SPEC.LIMITS.autofixMaxBytes) +
-      ' and ' + (SPEC.LIMITS.autofixMaxDurationSec / 60) + ' minutes. Use ffmpeg instead:<br><code>' +
-      escapeHtml(cmd) + '</code>';
+  // Work out what a re-encode can actually repair. Offering "Re-encode at
+  // 30 fps" on a 1.5s clip was the old bug: the output was still 1.5s and
+  // failed the identical duration check.
+  const plan = SPEC.planFixes(report);
+  state.fixPlan = plan;
+
+  const fpsIsTheProblem = report.failures.some(function (f) { return f.id === 'fps'; });
+  const title = fpsIsTheProblem ? 'TikTok will reject this: frame rate' : 'TikTok will reject this';
+
+  let hint = 'Faster on a desktop — run this and upload the result:<br><code>' +
+    escapeHtml(plan.ffmpegCommand) + '</code>';
+
+  if (plan.manual.length) {
+    // Nothing the converter can do. Say so instead of showing a dead button.
+    const manualList = plan.manual.map(function (m) {
+      return '<li><strong>' + escapeHtml(m.label) + ':</strong> ' + escapeHtml(m.message || '') + '</li>';
+    }).join('');
+    setPreflight('blocked', title,
+      'Uploading now returns the same error you saw. Fix these first:' + listHtml +
+      '<p style="margin-top:9px"><strong>Re-encoding cannot fix this — you need to change the source video:</strong></p><ul>' +
+      manualList + '</ul>',
+      false, null);
+    autofixBtn.disabled = true;
+    return;
   }
-  return hint;
+
+  if (!plan.withinConverterLimits) {
+    hint = 'In-browser conversion is capped at ' + SPEC.formatBytes(SPEC.LIMITS.autofixMaxBytes) +
+      ' and ' + (SPEC.LIMITS.autofixMaxDurationSec / 60) + ' minutes. Use ffmpeg on your computer:<br><code>' +
+      escapeHtml(plan.ffmpegCommand) + '</code>';
+  }
+
+  setPreflight('blocked', title,
+    'Uploading now returns the same error you saw. Fix these first:' + listHtml,
+    true, hint);
+
+  autofixBtn.textContent = plan.canAutoFix ? plan.label : 'Too large to convert here';
+  autofixBtn.disabled = !plan.canAutoFix;
 }
 
 function escapeHtml(s) {
@@ -1065,15 +1080,16 @@ function escapeHtml(s) {
 // ── Auto-fix: re-encode to constant frame rate in the browser ─────────
 autofixBtn.addEventListener('click', async function () {
   if (!state.videoFile || !state.specReport || state.isConverting) return;
+  const plan = state.fixPlan;
+  if (!plan || !plan.canAutoFix) return;
 
-  const report = state.specReport;
   const overlay = $('#processing-overlay');
   const bar = $('#progress-bar-fill');
 
   state.isConverting = true;
   syncUploadButtons();
 
-  $('#processing-title').textContent = 'Re-encoding video';
+  $('#processing-title').textContent = plan.label;
   $('#processing-subtitle').textContent = 'Preparing…';
   $('#processing-step-list').style.display = 'none';
   bar.style.width = '0%';
@@ -1082,7 +1098,7 @@ autofixBtn.addEventListener('click', async function () {
 
   try {
     const converted = await SPEC.conform(state.videoFile, {
-      targetFps: report.targetFps,
+      ops: plan.ops,
       onStage: function (msg) { $('#processing-subtitle').textContent = msg; },
       onProgress: function (p) { bar.style.width = Math.round(p * 100) + '%'; },
       onLog: function (line) { if (/error|invalid|failed/i.test(line)) console.warn('[ffmpeg]', line); }
@@ -1092,7 +1108,7 @@ autofixBtn.addEventListener('click', async function () {
     $('#processing-step-list').style.display = 'flex';
     state.isConverting = false;
 
-    showToast('Re-encoded at ' + report.targetFps + ' fps. Re-checking…');
+    showToast('Converted. Re-checking…');
     handleVideoFile(converted);
   } catch (err) {
     console.error('[Auto-fix] Conversion failed', err);
@@ -1294,9 +1310,129 @@ document.addEventListener('click', (e) => {
 // ═══════════════════════════════════════
 // UPLOAD TO TIKTOK
 //
-// Chunked, direct browser → TikTok transfer. The Vercel function only
-// handles small JSON, so the 4.5MB body cap never applies.
-// ═══════════════════════════════════════
+// Chunked, resumable, direct browser -> TikTok transfer over XHR.
+//
+// ── WHY XHR AND NOT FETCH ─────────────────────────────────────────────
+// fetch() reports nothing while a request body uploads, so the overlay sat
+// at "0%" for the entire transfer and every failure collapsed into one
+// opaque TypeError. XHR exposes upload.onprogress (real percentage) and
+// separates timeout / network / HTTP failures, which is what makes the
+// retry logic and the diagnostic below possible.
+//
+// ── WHY RETRIES ───────────────────────────────────────────────────────
+// A single PUT of the whole file across an unstable link is all-or-nothing:
+// one reset at 90% throws the entire transfer away. Chunks are retried
+// individually with backoff, so a dropout costs one chunk, not the upload.
+// ═══════════════════════════════════════════════════════════════════
+
+const CHUNK_TIMEOUT_MS = 120000;   // per chunk, not per file
+const CHUNK_RETRIES = 3;
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function uploadError(kind, message, status, body) {
+  const e = new Error(message);
+  e.kind = kind;        // 'network' | 'timeout' | 'http' | 'abort'
+  e.status = status || 0;
+  e.body = body || '';
+  return e;
+}
+
+// One chunk, one PUT. Resolves on 2xx, rejects with a classified error.
+function putChunk(url, blob, start, end, total, contentType, onProgress) {
+  return new Promise(function (resolve, reject) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url, true);
+    xhr.timeout = CHUNK_TIMEOUT_MS;
+
+    // TikTok's preflight allows exactly: Origin, Content-Range,
+    // Content-Length, Content-Type. Content-Length is set by the browser
+    // and cannot be assigned here — doing so throws.
+    xhr.setRequestHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + total);
+    xhr.setRequestHeader('Content-Type', contentType);
+
+    xhr.upload.onprogress = function (e) {
+      if (e.lengthComputable) onProgress(e.loaded, e.total);
+    };
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve({ status: xhr.status });
+      } else {
+        reject(uploadError('http',
+          'TikTok returned HTTP ' + xhr.status + ' for this chunk.',
+          xhr.status, (xhr.responseText || '').slice(0, 400)));
+      }
+    };
+    // status 0 here means the browser never got a response: DNS failure,
+    // connection reset, TLS failure, or the request being filtered.
+    xhr.onerror = function () {
+      reject(uploadError('network',
+        'The connection to TikTok\'s upload server dropped.', 0));
+    };
+    xhr.ontimeout = function () {
+      reject(uploadError('timeout',
+        'This chunk took longer than ' + (CHUNK_TIMEOUT_MS / 1000) + 's.', 0));
+    };
+    xhr.onabort = function () { reject(uploadError('abort', 'Upload cancelled.', 0)); };
+
+    xhr.send(blob);
+  });
+}
+
+// Relay the same PUT through your own server, for networks where the direct
+// browser -> TikTok path is filtered. Only used when config.js sets
+// AETHER_API_CONFIG.UPLOAD_RELAY. See relay/server.js.
+function putChunkViaRelay(relayUrl, targetUrl, blob, start, end, total, contentType, onProgress) {
+  return new Promise(function (resolve, reject) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', relayUrl + '?target=' + encodeURIComponent(targetUrl), true);
+    xhr.timeout = CHUNK_TIMEOUT_MS;
+    xhr.setRequestHeader('X-Upload-Content-Range', 'bytes ' + start + '-' + end + '/' + total);
+    xhr.setRequestHeader('Content-Type', contentType);
+    xhr.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded, e.total); };
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) resolve({ status: xhr.status, viaRelay: true });
+      else reject(uploadError('http', 'Relay returned HTTP ' + xhr.status + '.', xhr.status, (xhr.responseText || '').slice(0, 400)));
+    };
+    xhr.onerror = function () { reject(uploadError('network', 'Could not reach the upload relay.', 0)); };
+    xhr.ontimeout = function () { reject(uploadError('timeout', 'The relay timed out.', 0)); };
+    xhr.send(blob);
+  });
+}
+
+// Is TikTok's upload host reachable at all? An opaque no-cors response still
+// proves DNS + TCP + TLS succeeded, which separates "your network cannot see
+// this host" from "the host saw the request and refused it".
+async function probeUploadHost(uploadUrl) {
+  let origin;
+  try { origin = new URL(uploadUrl).origin; } catch (_) { return { reachable: null }; }
+  try {
+    await fetch(origin, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
+    return { reachable: true, origin: origin };
+  } catch (_) {
+    return { reachable: false, origin: origin };
+  }
+}
+
+function explainUploadFailure(err, hostProbe, uploadUrl) {
+  let host = '';
+  try { host = new URL(uploadUrl).host; } catch (_) { host = 'TikTok\'s upload server'; }
+
+  if (err.kind === 'http') {
+    if (err.status === 403 || err.status === 401) {
+      return 'TikTok refused the transfer (HTTP ' + err.status + '). The upload link has expired or your account\'s region does not permit uploads from this network. Re-authorize and try again.';
+    }
+    return 'TikTok rejected the transfer with HTTP ' + err.status + '. ' + (err.body || '');
+  }
+  if (err.kind === 'timeout') {
+    return 'The transfer timed out. Your connection is too slow or unstable for this file size — try a smaller video or a steadier network.';
+  }
+  if (hostProbe.reachable === false) {
+    return 'Your network cannot reach ' + host + ' at all. It is being blocked upstream — by your ISP, a firewall, or a DNS filter. A relay server fixes this permanently (see FIXES.md).';
+  }
+  return host + ' is reachable but dropped the upload itself. This is usually an unstable connection; it can also mean TikTok is refusing uploads from your region. Retry, and if it persists set up the relay (see FIXES.md).';
+}
+
 async function executeTikTokUpload() {
   const blocked = uploadBlockedReason();
   if (blocked) return showToast(blocked);
@@ -1330,11 +1466,12 @@ async function executeTikTokUpload() {
 
   const initEndpoint = `${API.SERVER_API_ROOT}/tiktok/upload-init`;
   const videoFile = state.videoFile;
+  const relayUrl = API.UPLOAD_RELAY || null;
 
   try {
-    setStep(0, 'Verifying TikTok authorization…', 6);
+    setStep(0, 'Verifying TikTok authorization…', 5);
 
-    // ── Step 1: get an upload_url + chunk plan (small JSON only) ──────
+    // ── Step 1: upload_url + chunk plan (small JSON, no size limit issue) ──
     let initRes;
     try {
       initRes = await fetch(initEndpoint, {
@@ -1343,20 +1480,18 @@ async function executeTikTokUpload() {
         body: JSON.stringify({ access_token: state.accessToken, video_size: videoFile.size })
       });
     } catch (networkErr) {
-      console.error('[TikTok upload-init] Network/CORS failure calling', initEndpoint, {
-        name: networkErr.name, message: networkErr.message, stack: networkErr.stack
-      });
-      throw new Error('Could not reach the backend. Check that /api is deployed.');
+      console.error('[upload-init] Network failure calling', initEndpoint, networkErr);
+      throw new Error('Could not reach ' + window.location.host + '/api. Your connection dropped, or a filter is blocking requests with "tiktok" in the path.');
     }
 
     const initRaw = await initRes.text();
     let initData = {};
     try { initData = initRaw ? JSON.parse(initRaw) : {}; } catch (_) {
-      console.error('[TikTok upload-init] Non-JSON response', { status: initRes.status, initRaw });
+      console.error('[upload-init] Non-JSON response', { status: initRes.status, initRaw });
     }
 
     if (!initRes.ok) {
-      console.error('[TikTok upload-init] HTTP error', { status: initRes.status, body: initData || initRaw });
+      console.error('[upload-init] HTTP error', { status: initRes.status, body: initData || initRaw });
       throw new Error('Upload init failed (' + initRes.status + '): ' + (initData.message || initData.error || 'Unknown error'));
     }
 
@@ -1365,48 +1500,81 @@ async function executeTikTokUpload() {
     const videoSize = initData.video_size || videoFile.size;
     const chunkSize = initData.chunk_size || videoSize;
     const totalChunks = initData.total_chunk_count || 1;
+    const contentType = videoFile.type || 'video/mp4';
 
     if (!uploadUrl || !publishId) {
-      console.error('[TikTok upload-init] Missing upload_url/publish_id', initData);
+      console.error('[upload-init] Missing upload_url/publish_id', initData);
       throw new Error('TikTok did not return an upload URL.');
     }
 
-    // ── Step 2: PUT the bytes straight to TikTok, chunk by chunk ──────
-    setStep(1, 'Uploading to TikTok (0%)', 12);
+    console.log('[upload] plan', {
+      host: (function () { try { return new URL(uploadUrl).host; } catch (_) { return '?'; } })(),
+      videoSize, chunkSize, totalChunks, relay: relayUrl || 'none'
+    });
+
+    // ── Step 2: PUT each chunk, retrying individually ─────────────────
+    let uploadedBefore = 0;
+    let useRelay = false;
 
     for (let i = 0; i < totalChunks; i++) {
       const start = i * chunkSize;
-      // The final chunk absorbs any remainder — that is what TikTok expects.
       const end = (i === totalChunks - 1) ? (videoSize - 1) : (start + chunkSize - 1);
       const blob = videoFile.slice(start, end + 1);
+      const chunkBytes = end - start + 1;
 
-      let putRes;
-      try {
-        putRes = await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: {
-            // Content-Length is set by the browser and cannot be overridden.
-            'Content-Range': `bytes ${start}-${end}/${videoSize}`,
-            'Content-Type': videoFile.type || 'video/mp4'
-          },
-          body: blob
-        });
-      } catch (putNetworkErr) {
-        console.error('[TikTok upload PUT] Network/CORS failure', {
-          chunk: i + 1, of: totalChunks,
-          name: putNetworkErr.name, message: putNetworkErr.message
-        });
-        throw new Error('Transfer to TikTok was blocked (chunk ' + (i + 1) + ' of ' + totalChunks + '). See the console.');
+      const onChunkProgress = (loaded) => {
+        const overall = (uploadedBefore + loaded) / videoSize;
+        const pct = Math.min(99, Math.round(overall * 100));
+        setStep(1, 'Uploading to TikTok (' + pct + '%)' +
+          (totalChunks > 1 ? ' · part ' + (i + 1) + ' of ' + totalChunks : ''),
+          8 + overall * 62);
+      };
+
+      let lastErr = null;
+      let done = false;
+
+      for (let attempt = 1; attempt <= CHUNK_RETRIES && !done; attempt++) {
+        try {
+          if (useRelay && relayUrl) {
+            await putChunkViaRelay(relayUrl, uploadUrl, blob, start, end, videoSize, contentType, onChunkProgress);
+          } else {
+            await putChunk(uploadUrl, blob, start, end, videoSize, contentType, onChunkProgress);
+          }
+          done = true;
+        } catch (err) {
+          lastErr = err;
+          console.warn('[upload] chunk ' + (i + 1) + '/' + totalChunks +
+            ' attempt ' + attempt + '/' + CHUNK_RETRIES + ' failed', { kind: err.kind, status: err.status, body: err.body });
+
+          // A 4xx is a decision, not a glitch — retrying changes nothing.
+          const permanent = err.kind === 'http' && err.status >= 400 && err.status < 500 &&
+            err.status !== 408 && err.status !== 429;
+          if (permanent || attempt === CHUNK_RETRIES) break;
+
+          // Direct path keeps failing at the network level: switch to the
+          // relay for this and every remaining chunk, if one is configured.
+          if (err.kind === 'network' && relayUrl && !useRelay && attempt >= 2) {
+            useRelay = true;
+            setStep(1, 'Direct upload blocked — switching to relay…', 12);
+            console.warn('[upload] falling back to relay at', relayUrl);
+            continue;
+          }
+
+          const backoff = 1500 * attempt;
+          setStep(1, 'Connection dropped — retrying in ' + (backoff / 1000) + 's…', 8);
+          await sleep(backoff);
+        }
       }
 
-      if (!putRes.ok) {
-        const putErrText = await putRes.text().catch(() => '');
-        console.error('[TikTok upload PUT] Non-OK response', { status: putRes.status, chunk: i + 1, putErrText });
-        throw new Error('Transfer failed on chunk ' + (i + 1) + ' of ' + totalChunks + ' (' + putRes.status + ').');
+      if (!done) {
+        const hostProbe = await probeUploadHost(uploadUrl);
+        console.error('[upload] chunk ' + (i + 1) + ' failed permanently', {
+          error: lastErr, hostReachable: hostProbe.reachable, origin: hostProbe.origin
+        });
+        throw new Error(explainUploadFailure(lastErr, hostProbe, uploadUrl));
       }
 
-      const pct = Math.round(((i + 1) / totalChunks) * 100);
-      setStep(1, 'Uploading to TikTok (' + pct + '%)', 12 + (pct * 0.6));
+      uploadedBefore += chunkBytes;
     }
 
     // ── Step 3: poll until TikTok reaches a terminal state ────────────
@@ -1415,7 +1583,7 @@ async function executeTikTokUpload() {
     let finalStatus = null;
     const maxAttempts = 10;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      await new Promise(r => setTimeout(r, 3000));
+      await sleep(3000);
       try {
         const statusRes = await fetch(`${API.SERVER_API_ROOT}/tiktok/upload-status`, {
           method: 'POST',
@@ -1423,28 +1591,22 @@ async function executeTikTokUpload() {
           body: JSON.stringify({ access_token: state.accessToken, publish_id: publishId })
         });
         const statusData = await statusRes.json().catch(() => ({}));
-        console.log(`[TikTok upload] Status ${attempt}/${maxAttempts}`, statusData);
-
-        // SEND_TO_USER_INBOX is the success state for the video.upload flow.
-        // Treating only PUBLISH_COMPLETE as terminal made successful uploads
-        // look like failures.
+        console.log('[upload] status ' + attempt + '/' + maxAttempts, statusData);
         if (statusData.is_terminal) { finalStatus = statusData; break; }
         subtitle.textContent = 'TikTok is checking the video… (' + (statusData.status || 'processing') + ')';
       } catch (statusErr) {
-        console.warn('[TikTok upload] Status check failed', statusErr.message);
+        console.warn('[upload] status check failed', statusErr.message);
       }
     }
 
     if (finalStatus && finalStatus.status === 'FAILED') {
       const reason = finalStatus.fail_reason;
-      const help = finalStatus.fail_reason_help ||
-        (SPEC ? SPEC.describeFailReason(reason) : '');
-      console.error('[TikTok upload] Rejected after processing', finalStatus);
+      const help = finalStatus.fail_reason_help || (SPEC ? SPEC.describeFailReason(reason) : '');
+      console.error('[upload] TikTok rejected the video', finalStatus);
       throw new Error('TikTok rejected the video (' + (reason || 'no reason given') + '). ' + help);
     }
-
     if (!finalStatus) {
-      console.warn('[TikTok upload] Still processing after polling. publish_id:', publishId);
+      console.warn('[upload] still processing after polling. publish_id:', publishId);
     }
 
     setStep(3, 'Sent to your TikTok inbox', 100);
@@ -1461,8 +1623,8 @@ async function executeTikTokUpload() {
   } catch (err) {
     overlay.classList.remove('active');
     syncUploadButtons();
-    showToast(err.message);
-    console.error('[TikTok upload] Failed:', err);
+    showToast(err.message, 9000);
+    console.error('[upload] failed:', err);
   }
 }
 
