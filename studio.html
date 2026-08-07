@@ -387,7 +387,7 @@
 // config.js may override CLIENT_KEY / REDIRECT_URI / SERVER_API_ROOT
 const API = Object.assign({
   SERVER_API_ROOT: '/api',
-  CLIENT_KEY: 'awm0jgm4w8o7m0vg',
+  CLIENT_KEY: '',
   REDIRECT_URI: (typeof window !== 'undefined'
     ? window.location.origin + window.location.pathname
     : '')
@@ -1156,18 +1156,41 @@ async function executeTikTokUpload() {
     }
 
     setStep(2, 'Verifying upload with TikTok...', 75);
-    // Optional: poll status once for immediate feedback (best-effort — an
-    // error here doesn't mean the upload failed, TikTok processes async).
-    try {
-      const statusRes = await fetch(`${API.SERVER_API_ROOT}/tiktok/upload-status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: state.accessToken, publish_id })
-      });
-      const statusData = await statusRes.json().catch(() => ({}));
-      console.log('[TikTok upload] Status check', statusData);
-    } catch (statusErr) {
-      console.warn('[TikTok upload] Status check skipped', statusErr.message);
+    // TikTok processes the video asynchronously — a single check right
+    // after the PUT usually just returns PROCESSING_UPLOAD. Poll a few
+    // times so we actually see the terminal PUBLISH_COMPLETE/FAILED
+    // state and can surface the real fail_reason instead of guessing.
+    let finalStatus = null;
+    const maxAttempts = 6;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await new Promise(r => setTimeout(r, 3000));
+      try {
+        const statusRes = await fetch(`${API.SERVER_API_ROOT}/tiktok/upload-status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: state.accessToken, publish_id })
+        });
+        const statusData = await statusRes.json().catch(() => ({}));
+        console.log(`[TikTok upload] Status check ${attempt}/${maxAttempts}`, statusData);
+        if (statusData.status === 'PUBLISH_COMPLETE' || statusData.status === 'FAILED') {
+          finalStatus = statusData;
+          break;
+        }
+        subtitle.textContent = `Verifying upload with TikTok... (${statusData.status || 'processing'})`;
+      } catch (statusErr) {
+        console.warn('[TikTok upload] Status check failed', statusErr.message);
+      }
+    }
+
+    if (finalStatus && finalStatus.status === 'FAILED') {
+      console.error('[TikTok upload] TikTok rejected the video after processing', finalStatus);
+      throw new Error(
+        'TikTok rejected the video: ' + (finalStatus.fail_reason || 'unknown reason') +
+        (finalStatus.uploaded_bytes ? ` (received ${finalStatus.uploaded_bytes} bytes)` : '')
+      );
+    }
+    if (!finalStatus) {
+      console.warn('[TikTok upload] Status still processing after all polling attempts — check the TikTok app inbox directly, or call upload-status again later with publish_id:', publish_id);
     }
 
     setStep(3, 'Upload complete', 100);
