@@ -549,16 +549,163 @@
       });
     }
 
-  // ═══════════════════════════════════════════════════════════════════
-  // CONFORM — re-encode to constant frame rate H.264 MP4 via ffmpeg.wasm
+  // ═══════════════════════════════════════════════════════════════════  // FIX PLANNING — decide what a re-encode can and cannot repair
   //
-  // Single-threaded core: no SharedArrayBuffer, so no COOP/COEP headers
-  // required and the TikTok OAuth popup keeps working. The trade-off is
-  // speed — roughly half of real time on a modern laptop.
+  // The old build offered "Re-encode at 30 fps" for ANY failure. On a 1.5s
+  // clip that button was a lie: re-encoding does not make a video longer, so
+  // the output failed the same duration check. Now the button only appears
+  // when re-encoding actually resolves every fail-level issue, and it says
+  // what it is about to do.
   // ═══════════════════════════════════════════════════════════════════
-  var FFMPEG_UMD = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js';
-  var FFMPEG_UTIL_UMD = 'https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js';
-  var FFMPEG_CORE_BASE = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  function planFixes(report) {
+    var ops = { fps: null, loopToSec: null, scale: null, transcode: false };
+    var fixable = [];
+    var manual = [];
+
+    function consider(check) {
+      switch (check.id) {
+        case 'fps':
+          ops.fps = report.targetFps;
+          fixable.push(check);
+          break;
+
+        case 'format':
+          ops.transcode = true;
+          fixable.push(check);
+          break;
+
+        case 'duration':
+          if (!report.durationSec) {
+            // Infinity duration (MediaRecorder WebM) — remuxing rewrites the header.
+            ops.transcode = true;
+            fixable.push(check);
+          } else if (report.durationSec < LIMITS.minDurationSec) {
+            ops.loopToSec = LIMITS.minDurationSec;
+            fixable.push(check);
+          } else {
+            // Too long. Trimming would silently discard content, so the user decides.
+            manual.push(check);
+          }
+          break;
+
+        case 'size':
+          if (report.width > LIMITS.maxSide || report.height > LIMITS.maxSide) ops.scale = 'down';
+          else if (Math.min(report.width, report.height) < LIMITS.minSide) ops.scale = 'up';
+          else ops.scale = 'even';
+          fixable.push(check);
+          break;
+
+        default:
+          // filesize and anything unrecognised: not something re-encoding fixes.
+          manual.push(check);
+      }
+    }
+
+    report.failures.forEach(consider);
+    report.warnings.forEach(function (w) {
+      if (w.id === 'size' && w.level === 'warn') { ops.scale = ops.scale || 'even'; }
+    });
+
+    // Any re-encode has to land on a legal frame rate, even if fps was not
+    // the failing check — otherwise a fix for one problem creates another.
+    if (fixable.length && !ops.fps) ops.fps = report.targetFps;
+
+    var withinConverterLimits =
+      report.sizeBytes <= LIMITS.autofixMaxBytes &&
+      (!report.durationSec || report.durationSec <= LIMITS.autofixMaxDurationSec);
+
+    var labelParts = [];
+    if (ops.loopToSec) labelParts.push('Loop to ' + ops.loopToSec + 's');
+    if (ops.fps) labelParts.push((labelParts.length ? '' : 'Re-encode at ') + ops.fps + ' fps');
+    if (ops.scale === 'down') labelParts.push('downscale');
+    if (ops.scale === 'up') labelParts.push('upscale');
+
+    return {
+      ops: ops,
+      fixable: fixable,
+      manual: manual,
+      // Only offer the button if re-encoding clears EVERY blocking issue.
+      canAutoFix: fixable.length > 0 && manual.length === 0 && withinConverterLimits,
+      withinConverterLimits: withinConverterLimits,
+      label: labelParts.length ? labelParts.join(' + ') : 'Re-encode',
+      ffmpegCommand: buildFfmpegCommand(ops)
+    };
+  }
+
+  function buildFilterChain(ops) {
+    var filters = [];
+    if (ops.fps) filters.push('fps=' + ops.fps);
+    if (ops.scale === 'down') {
+      filters.push("scale='min(" + LIMITS.maxSide + ",iw)':'min(" + LIMITS.maxSide + ",ih)':force_original_aspect_ratio=decrease");
+    } else if (ops.scale === 'up') {
+      filters.push("scale='if(gt(a,1)," + '-2' + ",720)':'if(gt(a,1),720,-2)'");
+    }
+    // Always last: H.264 cannot encode odd pixel dimensions.
+    filters.push('scale=trunc(iw/2)*2:trunc(ih/2)*2');
+    return filters.join(',');
+  }
+
+  function buildFfmpegCommand(ops) {
+    var pre = ops.loopToSec ? '-stream_loop -1 ' : '';
+    var dur = ops.loopToSec ? '-t ' + ops.loopToSec + ' ' : '';
+    var fps = ops.fps || 30;
+    return 'ffmpeg ' + pre + '-i input.mp4 ' + dur +
+      '-vf "' + buildFilterChain(ops) + '" -r ' + fps +
+      ' -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p' +
+      ' -c:a aac -b:a 192k -movflags +faststart output.mp4';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // CONFORM — re-encode via ffmpeg.wasm
+  //
+  // ── THE WORKER FIX ────────────────────────────────────────────────
+  // @ffmpeg/ffmpeg 0.12 spawns its own Worker from a file next to itself
+  // (814.ffmpeg.js). When the library is served from a CDN that Worker is
+  // cross-origin, and the Worker spec forbids that outright:
+  //
+  //   Failed to construct 'Worker': Script at
+  //   'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/814.ffmpeg.js'
+  //   cannot be accessed from origin 'https://your-site.vercel.app'.
+  //
+  // No CORS header on unpkg's side can lift that restriction. The fix is to
+  // fetch the worker ourselves and hand load() a same-origin blob: URL via
+  // the classWorkerURL option, which the library then uses instead.
+  //
+  // Single-threaded core, so no SharedArrayBuffer and no COOP/COEP headers
+  // (those would have broken the TikTok OAuth popup).
+  // ═══════════════════════════════════════════════════════════════════
+  var FFMPEG_VERSION = '0.12.10';
+  var FFMPEG_UTIL_VERSION = '0.12.1';
+  var FFMPEG_CORE_VERSION = '0.12.6';
+
+  // Set window.AETHER_FFMPEG_BASE to a folder you host yourself to drop the
+  // CDN dependency entirely — faster and far more reliable on poor links.
+  // That folder needs: ffmpeg.js, 814.ffmpeg.js, util.js,
+  // ffmpeg-core.js, ffmpeg-core.wasm
+  function ffmpegUrls() {
+    var selfHosted = global.AETHER_FFMPEG_BASE;
+    if (selfHosted) {
+      var b = String(selfHosted).replace(/\/$/, '');
+      return {
+        lib: b + '/ffmpeg.js',
+        worker: b + '/814.ffmpeg.js',
+        util: b + '/util.js',
+        core: b + '/ffmpeg-core.js',
+        wasm: b + '/ffmpeg-core.wasm',
+        selfHosted: true
+      };
+    }
+    var umd = 'https://unpkg.com/@ffmpeg/ffmpeg@' + FFMPEG_VERSION + '/dist/umd';
+    var coreBase = 'https://unpkg.com/@ffmpeg/core@' + FFMPEG_CORE_VERSION + '/dist/umd';
+    return {
+      lib: umd + '/ffmpeg.js',
+      worker: umd + '/814.ffmpeg.js',
+      util: 'https://unpkg.com/@ffmpeg/util@' + FFMPEG_UTIL_VERSION + '/dist/umd/index.js',
+      core: coreBase + '/ffmpeg-core.js',
+      wasm: coreBase + '/ffmpeg-core.wasm',
+      selfHosted: false
+    };
+  }
 
   var _scriptCache = {};
   function loadScript(src) {
@@ -570,7 +717,8 @@
       s.onload = function () { resolve(); };
       s.onerror = function () {
         delete _scriptCache[src];
-        reject(new Error('Could not load the video converter. Check your connection or any content blockers.'));
+        reject(new Error('Could not download the converter from ' + src +
+          '. A content blocker, firewall or offline connection is the usual cause.'));
       };
       document.head.appendChild(s);
     });
@@ -579,25 +727,29 @@
 
   function conform(file, options) {
     options = options || {};
-    var targetFps = options.targetFps || 30;
+    var ops = options.ops || { fps: options.targetFps || 30, loopToSec: null, scale: 'even', transcode: true };
     var crf = options.crf != null ? String(options.crf) : '18';
     var preset = options.preset || 'veryfast';
     var onProgress = options.onProgress || function () {};
     var onStage = options.onStage || function () {};
     var onLog = options.onLog || function () {};
 
+    var targetFps = ops.fps || 30;
     if (targetFps < LIMITS.minFps) targetFps = 30;
     if (targetFps > LIMITS.maxFps) targetFps = 60;
 
+    var urls = ffmpegUrls();
     var ffmpeg = null;
 
-    onStage('Loading the converter (about 32 MB, first run only)');
+    onStage(urls.selfHosted
+      ? 'Loading the converter'
+      : 'Downloading the converter (about 32 MB, first run only)');
 
-    return loadScript(FFMPEG_UMD)
-      .then(function () { return loadScript(FFMPEG_UTIL_UMD); })
+    return loadScript(urls.lib)
+      .then(function () { return loadScript(urls.util); })
       .then(function () {
         if (!global.FFmpegWASM || !global.FFmpegUtil) {
-          throw new Error('The video converter loaded but did not initialise.');
+          throw new Error('The converter loaded but did not initialise. Reload the page and try again.');
         }
         var toBlobURL = global.FFmpegUtil.toBlobURL;
         ffmpeg = new global.FFmpegWASM.FFmpeg();
@@ -609,42 +761,48 @@
           }
         });
 
+        // Fetch all three as blob: URLs. The worker one is the actual fix for
+        // "Failed to construct 'Worker' ... cannot be accessed from origin".
         return Promise.all([
-          toBlobURL(FFMPEG_CORE_BASE + '/ffmpeg-core.js', 'text/javascript'),
-          toBlobURL(FFMPEG_CORE_BASE + '/ffmpeg-core.wasm', 'application/wasm')
-        ]).then(function (urls) {
-          return ffmpeg.load({ coreURL: urls[0], wasmURL: urls[1] });
+          toBlobURL(urls.core, 'text/javascript'),
+          toBlobURL(urls.wasm, 'application/wasm', true, function (e) {
+            if (e && e.total) {
+              onStage('Downloading the converter (' +
+                Math.round((e.received / e.total) * 100) + '%)');
+            }
+          }),
+          toBlobURL(urls.worker, 'text/javascript')
+        ]).then(function (u) {
+          onStage('Starting the converter');
+          return ffmpeg.load({ coreURL: u[0], wasmURL: u[1], classWorkerURL: u[2] });
         });
       })
       .then(function () {
         onStage('Reading the source file');
-        var fetchFile = global.FFmpegUtil.fetchFile;
-        return fetchFile(file);
+        return global.FFmpegUtil.fetchFile(file);
       })
       .then(function (bytes) {
         var ext = '.mp4';
         var name = (file.name || '').toLowerCase();
-        if (name.endsWith('.webm')) ext = '.webm';
-        else if (name.endsWith('.mov')) ext = '.mov';
+        var type = (file.type || '').toLowerCase();
+        if (name.endsWith('.webm') || type.indexOf('webm') !== -1) ext = '.webm';
+        else if (name.endsWith('.mov') || type.indexOf('quicktime') !== -1) ext = '.mov';
         else if (name.endsWith('.mkv')) ext = '.mkv';
-        else if ((file.type || '').indexOf('webm') !== -1) ext = '.webm';
-        else if ((file.type || '').indexOf('quicktime') !== -1) ext = '.mov';
 
         var inName = 'source' + ext;
         var outName = 'conformed.mp4';
 
         return ffmpeg.writeFile(inName, bytes).then(function () {
-          onStage('Re-encoding at a constant ' + targetFps + ' fps');
-          onProgress(0);
+          var args = [];
 
-          // -vf fps=N        forces exactly N frames per second of output
-          // -r N             stamps constant-rate timestamps on the muxer
-          // scale=trunc(/2)  guarantees even dimensions for H.264
-          // -crf 18          visually near-transparent; raise for smaller files
-          // +faststart       moves the moov atom to the front
-          return ffmpeg.exec([
-            '-i', inName,
-            '-vf', 'fps=' + targetFps + ',scale=trunc(iw/2)*2:trunc(ih/2)*2',
+          // -stream_loop must come BEFORE -i, and -t after, to extend a clip
+          // that is under TikTok's 3 second minimum.
+          if (ops.loopToSec) args.push('-stream_loop', '-1');
+          args.push('-i', inName);
+          if (ops.loopToSec) args.push('-t', String(ops.loopToSec));
+
+          args.push(
+            '-vf', buildFilterChain({ fps: targetFps, scale: ops.scale }),
             '-r', String(targetFps),
             '-c:v', 'libx264',
             '-preset', preset,
@@ -656,28 +814,41 @@
             '-ar', '48000',
             '-movflags', '+faststart',
             outName
-          ]).then(function () {
+          );
+
+          onStage(ops.loopToSec
+            ? 'Looping to ' + ops.loopToSec + 's and re-encoding at ' + targetFps + ' fps'
+            : 'Re-encoding at a constant ' + targetFps + ' fps');
+          onProgress(0);
+
+          return ffmpeg.exec(args).then(function () {
             onStage('Packaging the result');
             return ffmpeg.readFile(outName);
           }).then(function (data) {
             try { ffmpeg.deleteFile(inName); } catch (_) {}
             try { ffmpeg.deleteFile(outName); } catch (_) {}
 
-            var bytesOut = (data && data.buffer) ? data.buffer : data;
-            var blob = new Blob([bytesOut], { type: 'video/mp4' });
-            if (!blob.size) throw new Error('The converter produced an empty file. The source codec may be unsupported.');
+            var out = (data && data.buffer) ? data.buffer : data;
+            var blob = new Blob([out], { type: 'video/mp4' });
+            if (!blob.size) {
+              throw new Error('The converter produced an empty file. The source codec is probably unsupported.');
+            }
 
             var baseName = (file.name || 'video').replace(/\.[^.]+$/, '');
-            var out = new File([blob], baseName + '-' + targetFps + 'fps.mp4', { type: 'video/mp4' });
+            var result = new File([blob], baseName + '-tiktok.mp4', { type: 'video/mp4' });
 
             onProgress(1);
             try { ffmpeg.terminate(); } catch (_) {}
-            return out;
+            return result;
           });
         });
       })
       .catch(function (err) {
         if (ffmpeg) { try { ffmpeg.terminate(); } catch (_) {} }
+        var msg = err && err.message ? err.message : String(err);
+        if (/Failed to construct 'Worker'/i.test(msg)) {
+          throw new Error('The converter worker was blocked by the browser. Reload the page; if it repeats, self-host the ffmpeg files (see FIXES.md).');
+        }
         throw err;
       });
   }
@@ -687,6 +858,7 @@
     LIMITS: LIMITS,
     probe: probe,
     conform: conform,
+    planFixes: planFixes,
     describeFailReason: describeFailReason,
     formatBytes: formatBytes,
     snapFps: snapFps
