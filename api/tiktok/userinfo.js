@@ -4,21 +4,28 @@
 // Header: Authorization: Bearer <access_token>
 //
 // Proxies a request to TikTok's /v2/user/info/ endpoint and returns the
-// creator's profile fields. No credentials are required here beyond the
-// bearer token supplied by the client (obtained via exchange-token.js).
+// creator's profile fields.
+//
+// IMPORTANT: TikTok's response shape is { data: { user: { ...fields } } }
+// — the fields are nested one level deeper than `data`. Returning `data.data`
+// directly (instead of `data.data.user`) was the bug causing the front-end
+// to never see display_name/avatar_url.
+//
+// Also: only request fields covered by scopes this app actually has
+// (user.info.basic, user.info.profile). follower_count / following_count /
+// likes_count / video_count need the separate "user.info.stats" scope —
+// requesting them without it makes TikTok reject the ENTIRE field list,
+// not just omit those fields, which was silently breaking every field.
 
 const USER_FIELDS = [
   'open_id',
   'union_id',
   'avatar_url',
   'display_name',
+  'username',
   'bio_description',
   'profile_deep_link',
-  'is_verified',
-  'follower_count',
-  'following_count',
-  'likes_count',
-  'video_count',
+  'is_verified'
 ].join(',');
 
 module.exports = async (req, res) => {
@@ -51,26 +58,31 @@ module.exports = async (req, res) => {
       },
     });
 
+    const rawText = await tiktokResponse.text();
     let data;
     try {
-      data = await tiktokResponse.json();
+      data = JSON.parse(rawText);
     } catch (parseErr) {
-      console.error('Failed to parse TikTok userinfo response:', parseErr);
+      console.error('[userinfo] Non-JSON response from TikTok', { status: tiktokResponse.status, rawText });
       return res.status(502).json({ error: 'Invalid response received from TikTok.' });
     }
 
     const tiktokErrorCode = data && data.error && data.error.code;
 
     if (!tiktokResponse.ok || (tiktokErrorCode && tiktokErrorCode !== 'ok')) {
+      console.error('[userinfo] TikTok rejected request', { status: tiktokResponse.status, data });
       const status = tiktokResponse.status || 400;
       return res.status(status).json({
         error: (data.error && data.error.message) || 'Failed to fetch TikTok user info.',
+        code: tiktokErrorCode
       });
     }
 
-    return res.status(200).json(data.data || {});
+    // The actual fix: unwrap data.data.user, not data.data
+    const user = (data.data && data.data.user) || {};
+    return res.status(200).json(user);
   } catch (err) {
-    console.error('TikTok userinfo error:', err);
+    console.error('[userinfo] Unhandled error', err);
     return res.status(500).json({ error: 'Internal server error while fetching user info.' });
   }
 };
