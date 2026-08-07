@@ -1084,49 +1084,95 @@ async function executeTikTokUpload() {
     progressBar.style.width = prog + '%';
   }
 
-  const endpoint = `${API.SERVER_API_ROOT}/tiktok/upload`;
+  const initEndpoint = `${API.SERVER_API_ROOT}/tiktok/upload-init`;
+  const videoFile = state.videoFile;
 
   try {
-    setStep(0, 'Verifying TikTok authorization...', 10);
-    await new Promise(r => setTimeout(r, 300));
+    setStep(0, 'Verifying TikTok authorization...', 8);
 
-    setStep(1, 'Uploading video file...', 35);
-    const formData = new FormData();
-    formData.append('video', state.videoFile);
-    formData.append('access_token', state.accessToken);
-    formData.append('caption', $('#caption-input').value || '');
-    formData.append('privacy_level', $('#privacy-select').value || 'SELF_ONLY');
-    formData.append('disable_comment', $('#disable-comment').checked ? 'true' : 'false');
-    formData.append('disable_duet', $('#disable-duet').checked ? 'true' : 'false');
-    formData.append('disable_stitch', $('#disable-stitch').checked ? 'true' : 'false');
-
-    let res;
+    // ── Step 1: ask our Vercel function for a TikTok upload_url. This is
+    // a small JSON call — the video itself never goes through Vercel, so
+    // Vercel's 4.5MB body limit never applies, regardless of video size.
+    let initRes;
     try {
-      res = await fetch(endpoint, { method: 'POST', body: formData });
+      initRes = await fetch(initEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: state.accessToken, video_size: videoFile.size })
+      });
     } catch (networkErr) {
-      console.error('[TikTok upload] Network/CORS failure calling', endpoint, {
-        name: networkErr.name,
-        message: networkErr.message,
-        stack: networkErr.stack
+      console.error('[TikTok upload-init] Network/CORS failure calling', initEndpoint, {
+        name: networkErr.name, message: networkErr.message, stack: networkErr.stack
       });
       throw new Error('Connection error. Is the backend running?');
     }
 
-    setStep(2, 'Publishing to TikTok...', 70);
-    const rawBody = await res.text();
-    let data = {};
-    try { data = rawBody ? JSON.parse(rawBody) : {}; } catch (_) {
-      console.error('[TikTok upload] Non-JSON response', { status: res.status, rawBody });
+    const initRaw = await initRes.text();
+    let initData = {};
+    try { initData = initRaw ? JSON.parse(initRaw) : {}; } catch (_) {
+      console.error('[TikTok upload-init] Non-JSON response', { status: initRes.status, initRaw });
     }
 
-    if (!res.ok) {
-      console.error('[TikTok upload] HTTP error', { endpoint, status: res.status, statusText: res.statusText, body: data && Object.keys(data).length ? data : rawBody });
-      throw new Error('Upload failed (' + res.status + '): ' + (data.error || data.message || rawBody || 'Unknown error'));
+    if (!initRes.ok) {
+      console.error('[TikTok upload-init] HTTP error', { status: initRes.status, body: initData || initRaw });
+      throw new Error('Upload init failed (' + initRes.status + '): ' + (initData.message || initData.error || initRaw || 'Unknown error'));
+    }
+
+    const { publish_id, upload_url, video_size } = initData;
+    if (!upload_url || !publish_id) {
+      console.error('[TikTok upload-init] Missing upload_url/publish_id in response', initData);
+      throw new Error('Upload init succeeded but TikTok did not return an upload URL');
+    }
+
+    // ── Step 2: PUT the raw video bytes straight from the browser to
+    // TikTok's upload_url. This is the step that carries the real file
+    // size and completely bypasses our Vercel function.
+    setStep(1, 'Uploading video file directly to TikTok...', 35);
+    let putRes;
+    try {
+      putRes = await fetch(upload_url, {
+        method: 'PUT',
+        headers: {
+          'Content-Range': `bytes 0-${video_size - 1}/${video_size}`,
+          'Content-Type': videoFile.type || 'video/mp4'
+        },
+        body: videoFile
+      });
+    } catch (putNetworkErr) {
+      // Most likely cause here: TikTok's upload_url does not allow
+      // cross-origin browser requests (no CORS headers on their side).
+      // If you see this, the direct-from-browser approach can't work and
+      // the video must be relayed through a real backend instead.
+      console.error('[TikTok upload PUT] Network/CORS failure calling upload_url', {
+        name: putNetworkErr.name, message: putNetworkErr.message, stack: putNetworkErr.stack
+      });
+      throw new Error('Video transfer to TikTok blocked (likely CORS). See console for details.');
+    }
+
+    if (!putRes.ok) {
+      const putErrText = await putRes.text().catch(() => '');
+      console.error('[TikTok upload PUT] Non-OK response', { status: putRes.status, putErrText });
+      throw new Error('Video transfer failed (' + putRes.status + '): ' + (putErrText || 'Unknown error'));
+    }
+
+    setStep(2, 'Verifying upload with TikTok...', 75);
+    // Optional: poll status once for immediate feedback (best-effort — an
+    // error here doesn't mean the upload failed, TikTok processes async).
+    try {
+      const statusRes = await fetch(`${API.SERVER_API_ROOT}/tiktok/upload-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: state.accessToken, publish_id })
+      });
+      const statusData = await statusRes.json().catch(() => ({}));
+      console.log('[TikTok upload] Status check', statusData);
+    } catch (statusErr) {
+      console.warn('[TikTok upload] Status check skipped', statusErr.message);
     }
 
     setStep(3, 'Upload complete', 100);
     progressBar.style.background = 'var(--green)';
-    subtitle.textContent = 'Published to TikTok successfully';
+    subtitle.textContent = 'Sent to TikTok inbox — open the app to finish posting';
 
     setTimeout(() => {
       overlay.classList.remove('active');
@@ -1134,7 +1180,7 @@ async function executeTikTokUpload() {
       steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
       $('#header-upload-btn').disabled = false;
       $('#main-upload-btn').disabled = false;
-      showToast('✓ Uploaded to TikTok');
+      showToast('✓ Sent to TikTok — check your inbox in the app');
     }, 1200);
   } catch (err) {
     overlay.classList.remove('active');
