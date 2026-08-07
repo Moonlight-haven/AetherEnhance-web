@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="tiktok-developers-site-verification" content="Jth5CgZbV2dN54unXAVN73MBBgf2PXGN" />
   <title>AetherEnhance Studio • Quality Bypass Engine</title>
-  
+
   <!-- Centralized API Configuration -->
   <script src="config.js"></script>
-  
+  <!-- Frame-rate probe + TikTok spec pre-flight + client-side conform -->
+  <script src="tiktok-video-spec.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -93,11 +95,11 @@
     .header-upload-btn:disabled{opacity:.3;cursor:not-allowed;filter:none;box-shadow:none}
     .header-avatar-placeholder{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .3s,border-color .3s;overflow:hidden}
     .header-avatar-placeholder img{width:100%;height:100%;object-fit:cover}
-    
+
     .theme-toggle-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .2s;flex-shrink:0}
     .theme-toggle-btn:hover{border-color:var(--border-active);color:var(--text-primary)}
     .theme-toggle-btn svg{width:15px;height:15px}
-    
+
     .hamburger-btn{display:none;width:32px;height:32px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s;flex-shrink:0}
     .hamburger-btn:hover{border-color:var(--border-light);color:var(--white)}
     .mobile-nav-dropdown{display:none;position:fixed;top:var(--header-h);left:0;right:0;background:var(--bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:99;padding:10px 14px;flex-direction:column;gap:2px;transform:translateY(-8px);opacity:0;pointer-events:none;transition:all .2s ease}
@@ -185,6 +187,34 @@
     .dropdown-item-avatar{width:24px;height:24px;border-radius:50%;background:var(--surface);flex-shrink:0;overflow:hidden}
     .legal-disclaimer{font-size:8px;color:var(--text-tertiary);line-height:1.6;margin-top:10px;text-align:center}
     .legal-disclaimer a{color:var(--tt-cyan);text-decoration:none}
+
+    /* ── PRE-FLIGHT BANNER ─────────────────────────────────────────── */
+    .preflight{display:none;border-radius:9px;padding:13px 14px;margin-bottom:14px;border:1px solid var(--border);background:var(--surface)}
+    .preflight.visible{display:block}
+    .preflight.blocked{border-color:var(--tt-red-dim);background:rgba(254,44,85,.05)}
+    .preflight.caution{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.05)}
+    .preflight.clear{border-color:rgba(0,204,102,.22);background:var(--green-dim)}
+    .preflight-head{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+    .preflight-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .preflight.blocked .preflight-dot{background:var(--tt-red);box-shadow:0 0 8px var(--tt-red-glow)}
+    .preflight.caution .preflight-dot{background:var(--amber)}
+    .preflight.clear .preflight-dot{background:var(--green);box-shadow:0 0 8px rgba(0,204,102,.3)}
+    .preflight-title{font-size:11px;font-weight:700;color:var(--text-primary);letter-spacing:-.01em}
+    .preflight-body{font-size:10px;line-height:1.65;color:var(--text-secondary)}
+    .preflight-body ul{list-style:none;margin:6px 0 0}
+    .preflight-body li{padding:5px 0 5px 12px;position:relative;border-top:1px solid var(--border)}
+    .preflight-body li::before{content:'→';position:absolute;left:0;color:var(--text-muted)}
+    .preflight-body strong{color:var(--text-primary);font-weight:600}
+    .preflight-actions{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
+    .preflight-btn{flex:1;min-width:120px;padding:9px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+    .preflight-btn.primary{background:var(--tt-red);color:#fff}
+    .preflight-btn.primary:hover{filter:brightness(1.1)}
+    .preflight-btn.ghost{background:transparent;border:1px solid var(--border-light);color:var(--text-secondary)}
+    .preflight-btn.ghost:hover{border-color:var(--border-active);color:var(--text-primary)}
+    .preflight-btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+    .preflight-hint{font-size:9px;color:var(--text-tertiary);margin-top:8px;line-height:1.6}
+    .preflight-hint code{font-family:'Geist Mono',monospace;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text-secondary);font-size:9px;display:inline-block;word-break:break-all}
+
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s ease}
     .modal-overlay.active{opacity:1;pointer-events:auto}
     .modal-box{background:var(--surface);border:1px solid var(--border-light);width:90%;max-width:360px;padding:32px 24px;border-radius:16px;text-align:center;transform:scale(.92);transition:transform .35s cubic-bezier(.175,.885,.32,1.275)}
@@ -197,15 +227,16 @@
     .modal-btn-secondary{width:100%;padding:11px;background:transparent;border:1px solid var(--border);color:var(--text-secondary);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
     .modal-btn-secondary:hover{border-color:var(--border-light);color:var(--white)}
     .modal-footer-note{font-size:7px;color:var(--text-muted);margin-top:14px;text-transform:uppercase;letter-spacing:.08em;font-family:'Geist Mono',monospace}
-    
+
     .unlink-verify-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 14px;color:var(--text-primary);font-size:13px;font-family:'Inter',sans-serif;text-align:center;margin:12px 0 16px;transition:border-color .2s}
     .unlink-verify-input:focus{outline:none;border-color:var(--tt-red)}
     .unlink-verify-input::placeholder{color:var(--text-muted)}
-    
-    .toast-notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface3);border:1px solid var(--border-active);padding:11px 22px;border-radius:9px;font-size:11px;font-weight:600;color:var(--white);z-index:400;transition:transform .3s cubic-bezier(.175,.885,.32,1.275);pointer-events:none;white-space:nowrap}
+
+    .toast-notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface3);border:1px solid var(--border-active);padding:11px 22px;border-radius:9px;font-size:11px;font-weight:600;color:var(--white);z-index:400;transition:transform .3s cubic-bezier(.175,.885,.32,1.275);pointer-events:none;max-width:min(560px,90vw);text-align:center;line-height:1.5}
     .toast-notification.show{transform:translateX(-50%) translateY(0)}
     @media(max-width:900px){.header-nav{display:none}.hamburger-btn{display:flex}.mobile-nav-dropdown{display:flex}.studio-body{flex-direction:column}.preview-panel{border-right:none;border-bottom:1px solid var(--border);min-height:auto;padding:16px}.preview-zone{max-height:300px;aspect-ratio:auto;height:260px}.preview-upload-icon{width:40px;height:40px}.preview-title{font-size:12px}.settings-panel{width:100%;max-height:none;position:static;padding:18px 14px}}
     @media(max-width:420px){.header-logo-text{display:none}.preview-zone{height:200px}}
+    @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
   </style>
 </head>
 <body>
@@ -257,7 +288,7 @@
     <div class="processing-title" id="processing-title">Uploading to TikTok</div>
     <div class="processing-subtitle" id="processing-subtitle">Initializing engine...</div>
     <div class="processing-progress-bar-wrap"><div class="processing-progress-bar-fill" id="progress-bar-fill"></div></div>
-    <div class="processing-step-list">
+    <div class="processing-step-list" id="processing-step-list">
       <div class="proc-step active" id="proc-step-1"><span class="proc-step-dot"></span>Verifying TikTok authorization</div>
       <div class="proc-step" id="proc-step-2"><span class="proc-step-dot"></span>Uploading video file</div>
       <div class="proc-step" id="proc-step-3"><span class="proc-step-dot"></span>Publishing to TikTok</div>
@@ -318,7 +349,7 @@
           <div class="preview-title">Select video to process</div>
           <div class="preview-subtitle">Drag & drop or click to browse</div>
           <button class="preview-select-btn" id="preview-select-btn">Select Video</button>
-          <div class="preview-formats"><span>MP4</span> · <span>WebM</span> · <span>MOV</span><br>720×1280 or higher · Up to <span>500 MB</span></div>
+          <div class="preview-formats"><span>MP4</span> · <span>WebM</span> · <span>MOV</span><br>720×1280 or higher · 23–60 fps · Up to <span>500 MB</span></div>
         </div>
         <div class="video-preview-wrap" id="video-preview-wrap">
           <video id="preview-video" src="" muted loop playsinline></video>
@@ -363,14 +394,32 @@
       <div class="toggle-row"><div class="toggle-label-text">Disable Duet</div><label class="toggle-switch"><input type="checkbox" id="disable-duet" disabled><span class="toggle-slider"></span></label></div>
       <div class="toggle-row"><div class="toggle-label-text">Disable Stitch</div><label class="toggle-switch"><input type="checkbox" id="disable-stitch" disabled><span class="toggle-slider"></span></label></div>
     </div>
+
+    <!-- PRE-FLIGHT: the fix for frame_rate_check_failed lives here -->
+    <div class="settings-section">
+      <div class="preflight" id="preflight">
+        <div class="preflight-head">
+          <span class="preflight-dot"></span>
+          <span class="preflight-title" id="preflight-title">Checking video</span>
+        </div>
+        <div class="preflight-body" id="preflight-body"></div>
+        <div class="preflight-actions" id="preflight-actions" style="display:none">
+          <button class="preflight-btn primary" id="autofix-btn">Re-encode at 30 fps</button>
+          <button class="preflight-btn ghost" id="upload-anyway-btn">Upload anyway</button>
+        </div>
+        <div class="preflight-hint" id="preflight-hint" style="display:none"></div>
+      </div>
+    </div>
+
     <div class="settings-section"><button class="main-upload-btn" id="main-upload-btn" disabled style="background:var(--tt-red);color:white;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload to TikTok</button></div>
+
     <div class="settings-section" id="status-section" style="display:none"><label class="settings-label">Source Video Specifications</label>
       <table class="status-table"><thead><tr><th>Property</th><th>Current</th><th>Target</th><th>Status</th></tr></thead><tbody>
         <tr><td style="color:var(--text-muted)">File Size</td><td class="status-val" id="stat-size">—</td><td style="color:var(--text-muted)">&lt;500 MB</td><td class="status-indicator" id="stat-size-status">—</td></tr>
-        <tr><td style="color:var(--text-muted)">Resolution</td><td class="status-val" id="stat-res">—</td><td style="color:var(--text-muted)">1080×1920</td><td class="status-indicator" id="stat-res-status">—</td></tr>
-        <tr><td style="color:var(--text-muted)">Duration</td><td class="status-val" id="stat-duration">—</td><td style="color:var(--text-muted)">&lt;10 min</td><td class="status-indicator" id="stat-duration-status">—</td></tr>
+        <tr><td style="color:var(--text-muted)">Resolution</td><td class="status-val" id="stat-res">—</td><td style="color:var(--text-muted)">≥360px</td><td class="status-indicator" id="stat-res-status">—</td></tr>
+        <tr><td style="color:var(--text-muted)">Duration</td><td class="status-val" id="stat-duration">—</td><td style="color:var(--text-muted)">3s–10min</td><td class="status-indicator" id="stat-duration-status">—</td></tr>
         <tr><td style="color:var(--text-muted)">Bitrate</td><td class="status-val" id="stat-bitrate">—</td><td style="color:var(--text-muted)">6+ Mbps</td><td class="status-indicator" id="stat-bitrate-status">—</td></tr>
-        <tr><td style="color:var(--text-muted)">Frame Rate</td><td class="status-val" id="stat-fps">—</td><td style="color:var(--text-muted)">30/60 fps</td><td class="status-indicator" id="stat-fps-status">—</td></tr>
+        <tr><td style="color:var(--text-muted)">Frame Rate</td><td class="status-val" id="stat-fps">—</td><td style="color:var(--text-muted)">23–60 fps</td><td class="status-indicator" id="stat-fps-status">—</td></tr>
         <tr><td style="color:var(--text-muted)">Codec</td><td class="status-val" id="stat-codec">—</td><td style="color:var(--text-muted)">H.264 High</td><td class="status-indicator" id="stat-codec-status">—</td></tr>
       </tbody></table>
     </div>
@@ -383,8 +432,6 @@
 // ═══════════════════════════════════════
 // READ CONFIG FROM CENTRALIZED config.js + Vercel defaults
 // ═══════════════════════════════════════
-// Production (Vercel): relative serverless routes under /api
-// config.js may override CLIENT_KEY / REDIRECT_URI / SERVER_API_ROOT
 const API = Object.assign({
   SERVER_API_ROOT: '/api',
   CLIENT_KEY: 'awm0jgm4w8o7m0vg',
@@ -393,22 +440,20 @@ const API = Object.assign({
     : '')
 }, window.AETHER_API_CONFIG || {});
 
-// Normalize root so paths resolve to:
-//   /api/tiktok/exchange-token
-//   /api/tiktok/userinfo
-//   /api/tiktok/search-creator
-//   /api/optimize-video
 (function normalizeApiRoot() {
   let root = String(API.SERVER_API_ROOT || '/api').replace(/\/$/, '');
-  // If config pointed at .../api/tiktok, strip trailing /tiktok
   if (/\/tiktok$/i.test(root)) root = root.replace(/\/tiktok$/i, '') || '/api';
-  // Empty or invalid → default relative Vercel base
   if (!root || root === '/') root = '/api';
   API.SERVER_API_ROOT = root;
 })();
 
 if (!API.CLIENT_KEY) {
   console.warn('[Aether] CLIENT_KEY missing — set it in config.js for TikTok OAuth.');
+}
+
+const SPEC = window.TikTokVideoSpec;
+if (!SPEC) {
+  console.error('[Aether] tiktok-video-spec.js did not load. Pre-flight checks are disabled — uploads may fail with frame_rate_check_failed.');
 }
 
 // ═══════════════════════════════════════
@@ -421,13 +466,16 @@ const state = {
   videoFile: null,
   videoUrl: null,
   videoMetadata: null,
+  specReport: null,       // result of SPEC.probe()
+  specBypassed: false,    // user chose "Upload anyway"
+  isProbing: false,
+  isConverting: false,
   isPlaying: false,
   selectedMentions: [],
   selectedLocation: null
 };
 
 const $ = (s) => document.querySelector(s);
-const $$ = (s) => document.querySelectorAll(s);
 
 // ═══════════════════════════════════════
 // LOADING SCREEN
@@ -456,7 +504,7 @@ setTheme(isDark);
 // TOAST
 // ═══════════════════════════════════════
 let toastTimer;
-function showToast(msg, duration = 2800) {
+function showToast(msg, duration = 3600) {
   clearTimeout(toastTimer);
   const el = $('#toast-notification');
   el.textContent = msg;
@@ -495,10 +543,10 @@ if (!sessionStorage.getItem('studio-auth-dismissed')) {
 async function openTikTokAuthPopup() {
   authModal.classList.remove('active');
 
-  // Prevent duplicate exchangeTokenWithPKCE calls for this auth attempt
   let isExchanging = false;
   let pollTimer = null;
   let pkceHandler = null;
+  let popup = null;
 
   function cleanupAuthListeners() {
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
@@ -522,7 +570,6 @@ async function openTikTokAuthPopup() {
   localStorage.setItem('tiktok_code_verifier', codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
-  // TikTok V2 scopes (comma-separated, not URL-encoded commas)
   const SCOPES = "user.info.basic,user.info.profile,video.upload";
 
   const authUrl = "https://www.tiktok.com/v2/auth/authorize/" +
@@ -534,10 +581,10 @@ async function openTikTokAuthPopup() {
     "&code_challenge_method=S256";
 
   const w = 500, h = 700;
-  const popup = window.open(authUrl, 'tiktokAuth', `width=${w},height=${h},left=${(screen.width-w)/2},top=${(screen.height-h)/2}`);
+  popup = window.open(authUrl, 'tiktokAuth', `width=${w},height=${h},left=${(screen.width-w)/2},top=${(screen.height-h)/2}`);
 
-  if (!popup) { showToast('⚠ Please allow popups'); return; }
-  showToast('🔐 Waiting for TikTok authorization...');
+  if (!popup) { showToast('Popup blocked. Allow popups for this site, then try again.'); return; }
+  showToast('Waiting for TikTok authorization…');
 
   pollTimer = setInterval(() => {
     try {
@@ -551,20 +598,18 @@ async function openTikTokAuthPopup() {
 
   pkceHandler = function (e) {
     if (e.origin !== window.location.origin) return;
-    if (e.data?.code) captureCodeOnce(e.data.code);
+    if (e.data && e.data.code) captureCodeOnce(e.data.code);
   };
   window.addEventListener('message', pkceHandler);
 }
 
 async function exchangeTokenWithPKCE(code) {
   const codeVerifier = localStorage.getItem('tiktok_code_verifier');
-  if (!codeVerifier) { showToast('⚠ PKCE verifier missing'); return; }
+  if (!codeVerifier) { showToast('PKCE verifier missing. Start the authorization again.'); return; }
 
   const endpoint = `${API.SERVER_API_ROOT}/tiktok/exchange-token`;
   let res;
 
-  // ── Step 1: perform the fetch itself. Failures here are network/CORS/DNS
-  // level (the server never responded), so there is no status/body to read.
   try {
     res = await fetch(endpoint, {
       method: 'POST',
@@ -572,19 +617,14 @@ async function exchangeTokenWithPKCE(code) {
       body: JSON.stringify({ code, code_verifier: codeVerifier })
     });
   } catch (networkErr) {
-    // True network failure: DNS error, CORS block, server unreachable, offline, etc.
     console.error('[Auth exchange] Network/CORS failure calling', endpoint, {
-      name: networkErr.name,
-      message: networkErr.message,
-      stack: networkErr.stack
+      name: networkErr.name, message: networkErr.message, stack: networkErr.stack
     });
-    showToast('⚠ Connection error. Is the backend running?');
+    showToast('Could not reach the backend. Check that /api is deployed.');
     localStorage.removeItem('tiktok_code_verifier');
     return;
   }
 
-  // ── Step 2: we got a response — read status + raw body for full diagnostics
-  // before attempting JSON parsing, so malformed/empty bodies are still logged.
   let rawBody = '';
   let data = {};
   try {
@@ -592,40 +632,30 @@ async function exchangeTokenWithPKCE(code) {
     data = rawBody ? JSON.parse(rawBody) : {};
   } catch (parseErr) {
     console.error('[Auth exchange] Failed to parse JSON response', {
-      status: res.status,
-      statusText: res.statusText,
-      rawBody
+      status: res.status, statusText: res.statusText, rawBody
     });
   }
   localStorage.removeItem('tiktok_code_verifier');
 
   if (!res.ok) {
     console.error('[Auth exchange] HTTP error', {
-      endpoint,
-      status: res.status,
-      statusText: res.statusText,
+      endpoint, status: res.status, statusText: res.statusText,
       body: data && Object.keys(data).length ? data : rawBody
     });
-    showToast('⚠ Auth failed (' + res.status + '): ' + (data.error || data.message || rawBody || 'Unknown error'));
+    showToast('Authorization failed (' + res.status + '): ' + (data.message || data.error || 'Unknown error'));
     return;
   }
 
-  // Support common response shapes; require a real access_token
   const accessToken =
-    data.access_token ||
-    data.accessToken ||
-    (data.data && (data.data.access_token || data.data.accessToken)) ||
-    null;
+    data.access_token || data.accessToken ||
+    (data.data && (data.data.access_token || data.data.accessToken)) || null;
   const userInfo =
-    data.user_info ||
-    data.userInfo ||
-    data.user ||
-    (data.data && (data.data.user_info || data.data.user)) ||
-    null;
+    data.user_info || data.userInfo || data.user ||
+    (data.data && (data.data.user_info || data.data.user)) || null;
 
   if (!accessToken) {
     console.error('[Auth exchange] Missing access_token in 200 response:', { status: res.status, body: data });
-    showToast('⚠ Auth failed: no access_token in response');
+    showToast('Authorization failed: the server returned no access token.');
     return;
   }
 
@@ -639,16 +669,11 @@ async function exchangeTokenWithPKCE(code) {
 async function fetchUserProfile(token) {
   if (!token) return;
   try {
-    // Prefer GET with Bearer (Vercel userinfo.js); fall back to POST body
     let res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     });
     if (!res.ok && res.status !== 404) {
-      // Some deployments still expect POST
       res = await fetch(`${API.SERVER_API_ROOT}/tiktok/userinfo`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -681,7 +706,6 @@ function updateProfileUI(profile) {
     $('#account-avatar-icon').innerHTML = avatarImg;
     $('#header-avatar-placeholder').innerHTML = avatarImg;
   }
-  // Persist latest profile details for reload rehydration
   try {
     const merged = { ...(state.userInfo || {}), ...profile };
     state.userInfo = merged;
@@ -702,7 +726,7 @@ if (authCode) { window.history.replaceState({}, document.title, window.location.
 // ═══════════════════════════════════════
 function setAuthorized(token, userInfo = null) {
   if (!token) {
-    showToast('⚠ Auth failed: missing access_token');
+    showToast('Authorization failed: no access token received.');
     console.error('[Auth] setAuthorized called without token');
     return;
   }
@@ -711,12 +735,10 @@ function setAuthorized(token, userInfo = null) {
   state.userInfo = userInfo || { display_name: 'Authorized User', username: 'tiktok_user' };
   sessionStorage.setItem('studio-authorized', 'true');
   sessionStorage.setItem('studio-access-token', token);
-  try {
-    sessionStorage.setItem('studio-user-info', JSON.stringify(state.userInfo));
-  } catch (_) {}
+  try { sessionStorage.setItem('studio-user-info', JSON.stringify(state.userInfo)); } catch (_) {}
   updateAuthUI();
   updateProfileUI(state.userInfo);
-  showToast('✓ TikTok authorized successfully');
+  showToast('TikTok authorized');
 }
 function unlinkTikTokAccount() {
   state.isAuthorized = false;
@@ -729,8 +751,7 @@ function unlinkTikTokAccount() {
   updateAuthUI();
   $('#account-avatar-icon').innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
   $('#header-avatar-placeholder').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
-  $('#header-upload-btn').disabled = true;
-  $('#main-upload-btn').disabled = true;
+  syncUploadButtons();
   showToast('TikTok account unlinked');
 }
 function updateAuthUI() {
@@ -743,16 +764,12 @@ function updateAuthUI() {
   if (state.isAuthorized) {
     badge.classList.add('connected');
     label.textContent = 'Authorized';
-    nameEl.textContent = state.userInfo?.display_name || state.userInfo?.username || 'Authorized';
+    nameEl.textContent = (state.userInfo && (state.userInfo.display_name || state.userInfo.username)) || 'Authorized';
     statusEl.textContent = 'Authorized • Active';
     statusEl.className = 'account-status-text connected';
     unlinkBtn.style.display = 'inline-block';
     connectBtn.style.display = 'none';
-    if (state.videoFile) {
-      $('#header-upload-btn').disabled = false;
-      $('#main-upload-btn').disabled = false;
-      setMetadataFieldsDisabled(false);
-    }
+    if (state.videoFile) setMetadataFieldsDisabled(false);
   } else {
     badge.classList.remove('connected');
     label.textContent = 'Not Authorized';
@@ -761,9 +778,8 @@ function updateAuthUI() {
     statusEl.className = 'account-status-text disconnected';
     unlinkBtn.style.display = 'none';
     connectBtn.style.display = 'inline-block';
-    $('#header-upload-btn').disabled = true;
-    $('#main-upload-btn').disabled = true;
   }
+  syncUploadButtons();
 }
 
 // ═══════════════════════════════════════
@@ -776,7 +792,7 @@ const unlinkConfirmName = $('#unlink-confirm-name');
 
 $('#unlink-btn').addEventListener('click', function(e) {
   e.preventDefault(); e.stopPropagation();
-  const currentName = state.userInfo?.display_name || state.userInfo?.username || 'Unknown';
+  const currentName = (state.userInfo && (state.userInfo.display_name || state.userInfo.username)) || 'Unknown';
   unlinkConfirmName.textContent = currentName;
   unlinkVerifyInput.value = '';
   unlinkConfirmBtn.style.opacity = '0.5';
@@ -784,27 +800,23 @@ $('#unlink-btn').addEventListener('click', function(e) {
   unlinkModal.classList.add('active');
 });
 unlinkVerifyInput.addEventListener('input', function() {
-  const currentName = state.userInfo?.display_name || state.userInfo?.username || '';
-  if (this.value.trim() === currentName) {
-    unlinkConfirmBtn.style.opacity = '1';
-    unlinkConfirmBtn.style.cursor = 'pointer';
-  } else {
-    unlinkConfirmBtn.style.opacity = '0.5';
-    unlinkConfirmBtn.style.cursor = 'not-allowed';
-  }
+  const currentName = (state.userInfo && (state.userInfo.display_name || state.userInfo.username)) || '';
+  const match = this.value.trim() === currentName;
+  unlinkConfirmBtn.style.opacity = match ? '1' : '0.5';
+  unlinkConfirmBtn.style.cursor = match ? 'pointer' : 'not-allowed';
 });
 $('#unlink-confirm-btn').addEventListener('click', function() {
-  const currentName = state.userInfo?.display_name || state.userInfo?.username || '';
+  const currentName = (state.userInfo && (state.userInfo.display_name || state.userInfo.username)) || '';
   if (unlinkVerifyInput.value.trim() === currentName) {
     unlinkModal.classList.remove('active');
     unlinkTikTokAccount();
   } else {
-    showToast('⚠ Username verification failed');
+    showToast('That name does not match. Type it exactly as shown.');
   }
 });
 $('#unlink-cancel-btn').addEventListener('click', () => { unlinkModal.classList.remove('active'); });
 
-// Rehydrate real profile from sessionStorage (not hardcoded "Restored User")
+// Rehydrate profile from sessionStorage
 if (sessionStorage.getItem('studio-authorized') === 'true') {
   const savedToken = sessionStorage.getItem('studio-access-token');
   let savedUser = null;
@@ -819,7 +831,6 @@ if (sessionStorage.getItem('studio-authorized') === 'true') {
     state.userInfo = savedUser || { display_name: 'Authorized User', username: 'tiktok_user' };
     updateProfileUI(state.userInfo);
   } else {
-    // Flag present but no real token — force re-auth
     sessionStorage.removeItem('studio-authorized');
     sessionStorage.removeItem('studio-user-info');
   }
@@ -841,6 +852,31 @@ function setMetadataFieldsDisabled(disabled) {
 setMetadataFieldsDisabled(true);
 
 // ═══════════════════════════════════════
+// UPLOAD BUTTON GATING
+//
+// The upload button is only live when: a file is loaded, TikTok is
+// authorized, no probe/conversion is running, and the pre-flight either
+// passed or the user explicitly chose to override it.
+// ═══════════════════════════════════════
+function uploadBlockedReason() {
+  if (!state.videoFile) return 'Select a video first';
+  if (!state.isAuthorized || !state.accessToken) return 'Authorize with TikTok first';
+  if (state.isProbing) return 'Checking the video…';
+  if (state.isConverting) return 'Re-encoding…';
+  if (state.specReport && !state.specReport.ok && !state.specBypassed) {
+    return 'Fix the flagged issues first';
+  }
+  return null;
+}
+function syncUploadButtons() {
+  const blocked = uploadBlockedReason();
+  const disabled = blocked !== null;
+  $('#main-upload-btn').disabled = disabled;
+  $('#header-upload-btn').disabled = disabled;
+  $('#main-upload-btn').title = blocked || 'Upload to TikTok';
+}
+
+// ═══════════════════════════════════════
 // MOBILE NAV
 // ═══════════════════════════════════════
 $('#hamburger-btn').addEventListener('click', () => $('#mobile-nav-dropdown').classList.toggle('open'));
@@ -851,14 +887,14 @@ document.addEventListener('click', (e) => {
 });
 
 // ═══════════════════════════════════════
-// FILE UPLOAD & VIDEO INSPECTION
+// FILE SELECTION
 // ═══════════════════════════════════════
 const previewZone = $('#preview-zone');
 const previewVideo = $('#preview-video');
 const fileInput = $('#file-input');
 function triggerFileInput() { fileInput.click(); }
 $('#preview-select-btn').addEventListener('click', (e) => { e.stopPropagation(); triggerFileInput(); });
-previewZone.addEventListener('click', (e) => { if (!state.videoFile) triggerFileInput(); });
+previewZone.addEventListener('click', () => { if (!state.videoFile) triggerFileInput(); });
 $('#change-video-btn').addEventListener('click', (e) => { e.stopPropagation(); triggerFileInput(); });
 fileInput.addEventListener('change', (e) => { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
 previewZone.addEventListener('dragover', (e) => { e.preventDefault(); previewZone.style.borderColor = 'var(--tt-red)'; });
@@ -866,79 +902,278 @@ previewZone.addEventListener('dragleave', () => { previewZone.style.borderColor 
 previewZone.addEventListener('drop', (e) => {
   e.preventDefault();
   previewZone.style.borderColor = state.videoFile ? 'var(--border-light)' : 'var(--border)';
-  if (e.dataTransfer.files[0]?.type.startsWith('video/')) handleVideoFile(e.dataTransfer.files[0]);
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('video/')) handleVideoFile(f);
 });
+
 function handleVideoFile(file) {
-  if (!file.type.startsWith('video/')) return showToast('⚠ Please select a video file');
-  if (file.size > 500 * 1024 * 1024) return showToast('⚠ File must be under 500 MB');
+  if (!file.type.startsWith('video/')) return showToast('That is not a video file.');
+  if (file.size > 500 * 1024 * 1024) return showToast('File is over the 500 MB limit. Compress it first.');
+
+  if (state.videoUrl) { try { URL.revokeObjectURL(state.videoUrl); } catch (_) {} }
+
   state.videoFile = file;
   state.videoUrl = URL.createObjectURL(file);
+  state.specReport = null;
+  state.specBypassed = false;
+
   previewVideo.src = state.videoUrl;
   $('#preview-placeholder').style.display = 'none';
   $('#video-preview-wrap').classList.add('active');
   previewZone.classList.add('has-video');
-  // Metadata fields (caption, privacy, etc.) unlock as soon as a video is
-  // selected, provided the user is already authorized with TikTok.
+
   setMetadataFieldsDisabled(!state.isAuthorized);
-  $('#main-upload-btn').disabled = !state.isAuthorized;
-  $('#header-upload-btn').disabled = !state.isAuthorized;
   resetUploadButton();
-  inspectVideoMedia(file);
+  syncUploadButtons();
+
   previewVideo.play().then(() => { state.isPlaying = true; updatePlayPauseIcon(); }).catch(() => {});
+
+  runPreflight(file);
 }
+
 function resetUploadButton() {
   const btn = $('#main-upload-btn');
   btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload to TikTok';
   btn.style.background = 'var(--tt-red)';
   btn.style.color = 'white';
   btn.style.fontWeight = '700';
-  btn.disabled = false;
 }
-async function inspectVideoMedia(file) {
+
+// ═══════════════════════════════════════
+// PRE-FLIGHT — measures the real frame rate BEFORE uploading
+//
+// This is what stops frame_rate_check_failed. TikTok only accepts 23–60 fps
+// and rejects variable-frame-rate files. Nothing on the server can detect
+// that; it has to be measured from the decoded video here in the browser.
+// ═══════════════════════════════════════
+const preflightEl = $('#preflight');
+const preflightTitle = $('#preflight-title');
+const preflightBody = $('#preflight-body');
+const preflightActions = $('#preflight-actions');
+const preflightHint = $('#preflight-hint');
+const autofixBtn = $('#autofix-btn');
+const uploadAnywayBtn = $('#upload-anyway-btn');
+
+function setPreflight(level, title, bodyHtml, showActions, hintHtml) {
+  preflightEl.className = 'preflight visible ' + level;
+  preflightTitle.textContent = title;
+  preflightBody.innerHTML = bodyHtml || '';
+  preflightActions.style.display = showActions ? 'flex' : 'none';
+  if (hintHtml) {
+    preflightHint.innerHTML = hintHtml;
+    preflightHint.style.display = 'block';
+  } else {
+    preflightHint.style.display = 'none';
+  }
+}
+
+async function runPreflight(file) {
   $('#status-section').style.display = 'block';
-  const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-  $('#stat-size').textContent = sizeMB + ' MB';
-  updateBadge('stat-size-status', sizeMB <= 500, '✓ OK', '⚠ Large');
-  const mime = file.type;
-  let codec = mime.includes('mp4') || mime.includes('quicktime') ? 'H.264 (AVC)' : mime.includes('webm') ? 'VP9' : 'Unknown';
-  $('#stat-codec').textContent = codec;
-  updateBadge('stat-codec-status', codec.includes('H.264'), '✓ Optimal', 'Will convert');
-  const video = previewVideo;
-  await new Promise((resolve) => {
-    if (video.readyState >= 1) resolve();
-    else video.addEventListener('loadedmetadata', resolve, { once: true });
-  });
-  const w = video.videoWidth, h = video.videoHeight;
-  $('#stat-res').textContent = (w && h) ? w + '×' + h : 'Unknown';
-  updateBadge('stat-res-status', h >= 1080 || w >= 1920, '✓ Optimal', 'Low res');
-  const dur = video.duration;
-  if (dur && isFinite(dur)) {
-    const min = Math.floor(dur / 60), sec = Math.floor(dur % 60);
-    $('#stat-duration').textContent = min + ':' + sec.toString().padStart(2, '0');
-    updateBadge('stat-duration-status', dur <= 600, '✓ OK', 'Too long');
-  } else {
-    $('#stat-duration').textContent = '—';
-    updateBadge('stat-duration-status', true, '—', '');
+  clearSpecTable();
+
+  if (!SPEC) {
+    setPreflight('caution', 'Pre-flight unavailable',
+      'tiktok-video-spec.js did not load, so the frame rate could not be checked. Uploads may still fail with frame_rate_check_failed.',
+      false);
+    syncUploadButtons();
+    return;
   }
-  if (dur && isFinite(dur) && dur > 0) {
-    const bitrateMbps = ((file.size * 8) / (dur * 1000000)).toFixed(1);
-    $('#stat-bitrate').textContent = bitrateMbps + ' Mbps';
-    updateBadge('stat-bitrate-status', parseFloat(bitrateMbps) >= 5, '✓ Optimal', 'Low');
-  } else {
-    const estBitrate = ((file.size * 8) / (10 * 1000000)).toFixed(1);
-    $('#stat-bitrate').textContent = estBitrate + ' Mbps (est)';
-    updateBadge('stat-bitrate-status', parseFloat(estBitrate) >= 5, '✓ Optimal', 'Low');
+
+  state.isProbing = true;
+  syncUploadButtons();
+  setPreflight('caution', 'Checking video', 'Measuring frame rate, resolution and duration…', false);
+
+  let report;
+  try {
+    report = await SPEC.probe(file);
+  } catch (err) {
+    console.error('[Pre-flight] probe failed', err);
+    state.isProbing = false;
+    state.specReport = null;
+    setPreflight('caution', 'Could not read this file', escapeHtml(err.message || 'Unknown error'), false);
+    syncUploadButtons();
+    return;
   }
-  $('#stat-fps').textContent = '—';
-  updateBadge('stat-fps-status', false, '', 'Pending');
-  $('#stat-fps-status').className = 'status-indicator amber';
-  state.videoMetadata = { sizeMB, resolution: $('#stat-res').textContent, duration: dur, codec };
+
+  state.isProbing = false;
+  state.specReport = report;
+  state.specBypassed = false;
+  state.videoMetadata = report;
+
+  fillSpecTable(report);
+  renderPreflightReport(report);
+  syncUploadButtons();
 }
-function updateBadge(id, isGood, goodText, badText) {
-  const el = $('#' + id);
+
+function renderPreflightReport(report) {
+  const problems = report.failures.concat(report.warnings);
+
+  if (report.ok && report.warnings.length === 0) {
+    setPreflight('clear', 'Ready to upload',
+      'Frame rate, resolution, duration and format all match TikTok\'s requirements.', false);
+    return;
+  }
+
+  const listHtml = '<ul>' + problems.map(function (c) {
+    return '<li><strong>' + escapeHtml(c.label) + ':</strong> ' +
+      escapeHtml(c.actual) + ' (needs ' + escapeHtml(c.expected) + '). ' +
+      escapeHtml(c.message || '') + '</li>';
+  }).join('') + '</ul>';
+
+  if (!report.ok) {
+    const fpsIsTheProblem = report.failures.some(function (f) { return f.id === 'fps'; });
+    const title = fpsIsTheProblem
+      ? 'TikTok will reject this: frame rate'
+      : 'TikTok will reject this';
+
+    setPreflight('blocked', title,
+      'Uploading now returns the same error you saw. Fix these first:' + listHtml,
+      true,
+      buildFixHint(report));
+
+    autofixBtn.textContent = 'Re-encode at ' + report.targetFps + ' fps';
+    autofixBtn.disabled = !report.canAutoFix;
+    if (!report.canAutoFix) {
+      autofixBtn.textContent = 'File too large to convert here';
+    }
+  } else {
+    setPreflight('caution', 'Worth a look before uploading', listHtml, false);
+  }
+}
+
+// The desktop ffmpeg command is faster and lossless-er than doing it in the
+// browser, so offer it alongside the in-page converter.
+function buildFixHint(report) {
+  const fps = report.targetFps || 30;
+  const cmd = 'ffmpeg -i input.mp4 -vf fps=' + fps + ' -r ' + fps +
+    ' -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart output.mp4';
+  let hint = 'Faster on a desktop — run this and upload the result:<br><code>' + escapeHtml(cmd) + '</code>';
+  if (!report.canAutoFix) {
+    hint = 'In-browser conversion is capped at ' + SPEC.formatBytes(SPEC.LIMITS.autofixMaxBytes) +
+      ' and ' + (SPEC.LIMITS.autofixMaxDurationSec / 60) + ' minutes. Use ffmpeg instead:<br><code>' +
+      escapeHtml(cmd) + '</code>';
+  }
+  return hint;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── Auto-fix: re-encode to constant frame rate in the browser ─────────
+autofixBtn.addEventListener('click', async function () {
+  if (!state.videoFile || !state.specReport || state.isConverting) return;
+
+  const report = state.specReport;
+  const overlay = $('#processing-overlay');
+  const bar = $('#progress-bar-fill');
+
+  state.isConverting = true;
+  syncUploadButtons();
+
+  $('#processing-title').textContent = 'Re-encoding video';
+  $('#processing-subtitle').textContent = 'Preparing…';
+  $('#processing-step-list').style.display = 'none';
+  bar.style.width = '0%';
+  bar.style.background = 'linear-gradient(90deg,var(--tt-red),var(--tt-cyan))';
+  overlay.classList.add('active');
+
+  try {
+    const converted = await SPEC.conform(state.videoFile, {
+      targetFps: report.targetFps,
+      onStage: function (msg) { $('#processing-subtitle').textContent = msg; },
+      onProgress: function (p) { bar.style.width = Math.round(p * 100) + '%'; },
+      onLog: function (line) { if (/error|invalid|failed/i.test(line)) console.warn('[ffmpeg]', line); }
+    });
+
+    overlay.classList.remove('active');
+    $('#processing-step-list').style.display = 'flex';
+    state.isConverting = false;
+
+    showToast('Re-encoded at ' + report.targetFps + ' fps. Re-checking…');
+    handleVideoFile(converted);
+  } catch (err) {
+    console.error('[Auto-fix] Conversion failed', err);
+    overlay.classList.remove('active');
+    $('#processing-step-list').style.display = 'flex';
+    state.isConverting = false;
+    syncUploadButtons();
+    showToast('Re-encode failed: ' + (err.message || 'Unknown error'));
+  }
+});
+
+uploadAnywayBtn.addEventListener('click', function () {
+  state.specBypassed = true;
+  preflightEl.classList.remove('blocked');
+  preflightEl.classList.add('caution');
+  preflightTitle.textContent = 'Pre-flight overridden';
+  preflightActions.style.display = 'none';
+  syncUploadButtons();
+  showToast('Pre-flight overridden. TikTok may still reject this video.');
+});
+
+// ═══════════════════════════════════════
+// SPEC TABLE
+// ═══════════════════════════════════════
+function clearSpecTable() {
+  ['size','res','duration','bitrate','fps','codec'].forEach(function (k) {
+    const v = $('#stat-' + k); if (v) v.textContent = '—';
+    const s = $('#stat-' + k + '-status'); if (s) { s.textContent = '…'; s.className = 'status-indicator'; }
+  });
+}
+
+function badge(id, level, text) {
+  const el = $('#stat-' + id + '-status');
   if (!el) return;
-  el.textContent = isGood ? goodText : badText;
-  el.className = 'status-indicator ' + (isGood ? 'green' : (badText === '⚠ Large' || badText === 'Too long' || badText === 'Pending' ? 'amber' : 'red'));
+  el.textContent = text;
+  el.className = 'status-indicator ' + (level === 'pass' ? 'green' : level === 'warn' ? 'amber' : 'red');
+}
+
+function fillSpecTable(report) {
+  const byId = {};
+  report.checks.forEach(function (c) { byId[c.id] = c; });
+
+  $('#stat-size').textContent = SPEC.formatBytes(report.sizeBytes);
+  badge('size', byId.filesize.level, byId.filesize.level === 'pass' ? 'OK' : 'Too large');
+
+  $('#stat-res').textContent = report.width && report.height ? report.width + '×' + report.height : 'Unknown';
+  badge('res', byId.size.level, byId.size.level === 'pass' ? 'Optimal' : byId.size.level === 'warn' ? 'Odd size' : 'Out of range');
+
+  if (report.durationSec) {
+    const min = Math.floor(report.durationSec / 60);
+    const sec = Math.floor(report.durationSec % 60);
+    $('#stat-duration').textContent = min + ':' + String(sec).padStart(2, '0');
+  } else {
+    $('#stat-duration').textContent = 'Unreadable';
+  }
+  badge('duration', byId.duration.level, byId.duration.level === 'pass' ? 'OK' : 'Out of range');
+
+  if (report.bitrateMbps) {
+    $('#stat-bitrate').textContent = report.bitrateMbps.toFixed(1) + ' Mbps';
+    badge('bitrate', report.bitrateMbps >= 5 ? 'pass' : 'warn', report.bitrateMbps >= 5 ? 'Optimal' : 'Low');
+  } else {
+    $('#stat-bitrate').textContent = '—';
+    badge('bitrate', 'warn', 'Unknown');
+  }
+
+  // THE ROW THAT MATTERS — it used to permanently read "Pending".
+  if (report.fps) {
+    $('#stat-fps').textContent = report.fps + ' fps' + (report.isVFR === true ? ' (VFR)' : '');
+  } else {
+    $('#stat-fps').textContent = 'Unmeasured';
+  }
+  badge('fps', byId.fps.level,
+    byId.fps.level === 'pass' ? 'Accepted' :
+    byId.fps.level === 'warn' ? 'Approximate' : 'Rejected');
+
+  const mime = report.mime || '';
+  const codec = mime.indexOf('mp4') !== -1 || mime.indexOf('quicktime') !== -1 ? 'H.264 (AVC)'
+    : mime.indexOf('webm') !== -1 ? 'VP8/VP9' : 'Unknown';
+  $('#stat-codec').textContent = codec;
+  badge('codec', codec.indexOf('H.264') !== -1 ? 'pass' : 'warn',
+    codec.indexOf('H.264') !== -1 ? 'Optimal' : 'Convert');
 }
 
 // ═══════════════════════════════════════
@@ -953,7 +1188,7 @@ previewVideo.addEventListener('play', () => { state.isPlaying = true; updatePlay
 previewVideo.addEventListener('pause', () => { state.isPlaying = false; updatePlayPauseIcon(); });
 previewVideo.addEventListener('click', () => { state.isPlaying ? previewVideo.pause() : previewVideo.play(); });
 $('#mute-btn').addEventListener('click', (e) => { e.stopPropagation(); previewVideo.muted = !previewVideo.muted; $('#unmute-icon').style.display = previewVideo.muted ? 'none' : 'block'; $('#mute-icon-el').style.display = previewVideo.muted ? 'block' : 'none'; });
-$('#fullscreen-btn').addEventListener('click', (e) => { e.stopPropagation(); previewVideo.requestFullscreen?.(); });
+$('#fullscreen-btn').addEventListener('click', (e) => { e.stopPropagation(); if (previewVideo.requestFullscreen) previewVideo.requestFullscreen(); });
 
 // ═══════════════════════════════════════
 // CAPTION + @ MENTION SEARCH
@@ -963,9 +1198,8 @@ captionInput.addEventListener('input', () => {
   const len = captionInput.value.length;
   $('#char-count').textContent = len + ' / 2,200';
   $('#char-count').style.color = len > 2000 ? 'var(--tt-red)' : 'var(--text-tertiary)';
-  const val = captionInput.value;
   const cursorPos = captionInput.selectionStart;
-  const textBeforeCursor = val.substring(0, cursorPos);
+  const textBeforeCursor = captionInput.value.substring(0, cursorPos);
   const atMatch = textBeforeCursor.match(/@(\w*)$/);
   if (atMatch) {
     debounce('caption-mention', () => searchCreators(atMatch[1]), 300);
@@ -982,36 +1216,35 @@ async function searchCreators(query) {
     });
     let users = [];
     if (res.ok) { const data = await res.json(); users = data.creators || data.users || []; }
-    if (users.length === 0) {
-      users = [
-        { username: query + '_creator', display_name: query.charAt(0).toUpperCase() + query.slice(1) + ' Creator' },
-        { username: 'official_' + query, display_name: 'Official ' + query }
-      ];
-    }
     const results = $('#mention-results');
+    if (users.length === 0) {
+      results.innerHTML = '<div class="dropdown-item" style="cursor:default;color:var(--text-tertiary)">No creators found for “' + escapeHtml(query) + '”</div>';
+      results.classList.add('active');
+      return;
+    }
     results.innerHTML = users.map(u => `
-      <div class="dropdown-item" data-username="${u.username}">
+      <div class="dropdown-item" data-username="${escapeHtml(u.username)}">
         <div class="dropdown-item-avatar"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-        <div><div style="font-weight:600;color:var(--text-primary)">${u.display_name || u.username}</div><div style="font-size:9px;color:var(--text-tertiary)">@${u.username}</div></div>
+        <div><div style="font-weight:600;color:var(--text-primary)">${escapeHtml(u.display_name || u.username)}</div><div style="font-size:9px;color:var(--text-tertiary)">@${escapeHtml(u.username)}</div></div>
       </div>
     `).join('');
     results.classList.add('active');
     results.querySelectorAll('.dropdown-item').forEach(item => {
       item.addEventListener('click', function() {
         const username = this.dataset.username;
+        if (!username) return;
         const val = captionInput.value;
         const cursorPos = captionInput.selectionStart;
         const textBefore = val.substring(0, cursorPos);
         const textAfter = val.substring(cursorPos);
-        const updatedBefore = textBefore.replace(/@\w*$/, '@' + username + ' ');
-        captionInput.value = updatedBefore + textAfter;
+        captionInput.value = textBefore.replace(/@\w*$/, '@' + username + ' ') + textAfter;
         captionInput.focus();
         captionInput.dispatchEvent(new Event('input'));
         results.classList.remove('active');
-        showToast('✓ @' + username + ' mentioned');
+        showToast('Mentioned @' + username);
       });
     });
-  } catch (err) { console.log('Mention search fallback:', err.message); }
+  } catch (err) { console.log('Mention search unavailable:', err.message); }
 }
 window.insertText = function(text) {
   const c = captionInput, pos = c.selectionStart;
@@ -1037,10 +1270,20 @@ $('#location-search').addEventListener('input', function() {
   const results = $('#location-results');
   if (!query) { results.classList.remove('active'); return; }
   debounce('location', async () => {
-    let locations = [{ id: 'loc_1', name: query + ' City Center' }];
-    results.innerHTML = locations.map(l => `<div class="dropdown-item" data-loc-name="${l.name}"><span style="font-size:14px">📍</span><span style="font-weight:500">${l.name}</span></div>`).join('');
+    const locations = [{ id: 'loc_1', name: query }];
+    results.innerHTML = locations.map(l => `<div class="dropdown-item" data-loc-name="${escapeHtml(l.name)}"><span style="font-size:14px">📍</span><span style="font-weight:500">${escapeHtml(l.name)}</span></div>`).join('');
     results.classList.add('active');
-    results.querySelectorAll('.dropdown-item').forEach(item => { item.addEventListener('click', function() { const name = this.dataset.locName; state.selectedLocation = { name }; insertText('📍' + name); $('#location-search').value = ''; $('#location-search').style.display = 'none'; results.classList.remove('active'); showToast('📍 Location set: ' + name); }); });
+    results.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const name = this.dataset.locName;
+        state.selectedLocation = { name };
+        insertText('📍' + name);
+        $('#location-search').value = '';
+        $('#location-search').style.display = 'none';
+        results.classList.remove('active');
+        showToast('Location added: ' + name);
+      });
+    });
   }, 300);
 });
 document.addEventListener('click', (e) => {
@@ -1049,14 +1292,14 @@ document.addEventListener('click', (e) => {
 });
 
 // ═══════════════════════════════════════
-// UPLOAD TO TIKTOK (direct — testing mode)
+// UPLOAD TO TIKTOK
+//
+// Chunked, direct browser → TikTok transfer. The Vercel function only
+// handles small JSON, so the 4.5MB body cap never applies.
 // ═══════════════════════════════════════
 async function executeTikTokUpload() {
-  if (!state.videoFile) return showToast('⚠ Please select a video first');
-  if (!state.isAuthorized || !state.accessToken) {
-    showToast('⚠ Please authorize with TikTok first');
-    return;
-  }
+  const blocked = uploadBlockedReason();
+  if (blocked) return showToast(blocked);
 
   const overlay = $('#processing-overlay');
   const subtitle = $('#processing-subtitle');
@@ -1064,6 +1307,7 @@ async function executeTikTokUpload() {
   const progressBar = $('#progress-bar-fill');
   const steps = ['proc-step-1', 'proc-step-2', 'proc-step-3', 'proc-step-4'];
 
+  $('#processing-step-list').style.display = 'flex';
   progressBar.style.width = '0%';
   progressBar.style.background = 'linear-gradient(90deg, var(--tt-red), var(--tt-cyan))';
   steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
@@ -1088,11 +1332,9 @@ async function executeTikTokUpload() {
   const videoFile = state.videoFile;
 
   try {
-    setStep(0, 'Verifying TikTok authorization...', 8);
+    setStep(0, 'Verifying TikTok authorization…', 6);
 
-    // ── Step 1: ask our Vercel function for a TikTok upload_url. This is
-    // a small JSON call — the video itself never goes through Vercel, so
-    // Vercel's 4.5MB body limit never applies, regardless of video size.
+    // ── Step 1: get an upload_url + chunk plan (small JSON only) ──────
     let initRes;
     try {
       initRes = await fetch(initEndpoint, {
@@ -1104,7 +1346,7 @@ async function executeTikTokUpload() {
       console.error('[TikTok upload-init] Network/CORS failure calling', initEndpoint, {
         name: networkErr.name, message: networkErr.message, stack: networkErr.stack
       });
-      throw new Error('Connection error. Is the backend running?');
+      throw new Error('Could not reach the backend. Check that /api is deployed.');
     }
 
     const initRaw = await initRes.text();
@@ -1115,101 +1357,111 @@ async function executeTikTokUpload() {
 
     if (!initRes.ok) {
       console.error('[TikTok upload-init] HTTP error', { status: initRes.status, body: initData || initRaw });
-      throw new Error('Upload init failed (' + initRes.status + '): ' + (initData.message || initData.error || initRaw || 'Unknown error'));
+      throw new Error('Upload init failed (' + initRes.status + '): ' + (initData.message || initData.error || 'Unknown error'));
     }
 
-    const { publish_id, upload_url, video_size } = initData;
-    if (!upload_url || !publish_id) {
-      console.error('[TikTok upload-init] Missing upload_url/publish_id in response', initData);
-      throw new Error('Upload init succeeded but TikTok did not return an upload URL');
+    const publishId = initData.publish_id;
+    const uploadUrl = initData.upload_url;
+    const videoSize = initData.video_size || videoFile.size;
+    const chunkSize = initData.chunk_size || videoSize;
+    const totalChunks = initData.total_chunk_count || 1;
+
+    if (!uploadUrl || !publishId) {
+      console.error('[TikTok upload-init] Missing upload_url/publish_id', initData);
+      throw new Error('TikTok did not return an upload URL.');
     }
 
-    // ── Step 2: PUT the raw video bytes straight from the browser to
-    // TikTok's upload_url. This is the step that carries the real file
-    // size and completely bypasses our Vercel function.
-    setStep(1, 'Uploading video file directly to TikTok...', 35);
-    let putRes;
-    try {
-      putRes = await fetch(upload_url, {
-        method: 'PUT',
-        headers: {
-          'Content-Range': `bytes 0-${video_size - 1}/${video_size}`,
-          'Content-Type': videoFile.type || 'video/mp4'
-        },
-        body: videoFile
-      });
-    } catch (putNetworkErr) {
-      // Most likely cause here: TikTok's upload_url does not allow
-      // cross-origin browser requests (no CORS headers on their side).
-      // If you see this, the direct-from-browser approach can't work and
-      // the video must be relayed through a real backend instead.
-      console.error('[TikTok upload PUT] Network/CORS failure calling upload_url', {
-        name: putNetworkErr.name, message: putNetworkErr.message, stack: putNetworkErr.stack
-      });
-      throw new Error('Video transfer to TikTok blocked (likely CORS). See console for details.');
+    // ── Step 2: PUT the bytes straight to TikTok, chunk by chunk ──────
+    setStep(1, 'Uploading to TikTok (0%)', 12);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * chunkSize;
+      // The final chunk absorbs any remainder — that is what TikTok expects.
+      const end = (i === totalChunks - 1) ? (videoSize - 1) : (start + chunkSize - 1);
+      const blob = videoFile.slice(start, end + 1);
+
+      let putRes;
+      try {
+        putRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            // Content-Length is set by the browser and cannot be overridden.
+            'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+            'Content-Type': videoFile.type || 'video/mp4'
+          },
+          body: blob
+        });
+      } catch (putNetworkErr) {
+        console.error('[TikTok upload PUT] Network/CORS failure', {
+          chunk: i + 1, of: totalChunks,
+          name: putNetworkErr.name, message: putNetworkErr.message
+        });
+        throw new Error('Transfer to TikTok was blocked (chunk ' + (i + 1) + ' of ' + totalChunks + '). See the console.');
+      }
+
+      if (!putRes.ok) {
+        const putErrText = await putRes.text().catch(() => '');
+        console.error('[TikTok upload PUT] Non-OK response', { status: putRes.status, chunk: i + 1, putErrText });
+        throw new Error('Transfer failed on chunk ' + (i + 1) + ' of ' + totalChunks + ' (' + putRes.status + ').');
+      }
+
+      const pct = Math.round(((i + 1) / totalChunks) * 100);
+      setStep(1, 'Uploading to TikTok (' + pct + '%)', 12 + (pct * 0.6));
     }
 
-    if (!putRes.ok) {
-      const putErrText = await putRes.text().catch(() => '');
-      console.error('[TikTok upload PUT] Non-OK response', { status: putRes.status, putErrText });
-      throw new Error('Video transfer failed (' + putRes.status + '): ' + (putErrText || 'Unknown error'));
-    }
+    // ── Step 3: poll until TikTok reaches a terminal state ────────────
+    setStep(2, 'TikTok is checking the video…', 76);
 
-    setStep(2, 'Verifying upload with TikTok...', 75);
-    // TikTok processes the video asynchronously — a single check right
-    // after the PUT usually just returns PROCESSING_UPLOAD. Poll a few
-    // times so we actually see the terminal PUBLISH_COMPLETE/FAILED
-    // state and can surface the real fail_reason instead of guessing.
     let finalStatus = null;
-    const maxAttempts = 6;
+    const maxAttempts = 10;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       await new Promise(r => setTimeout(r, 3000));
       try {
         const statusRes = await fetch(`${API.SERVER_API_ROOT}/tiktok/upload-status`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_token: state.accessToken, publish_id })
+          body: JSON.stringify({ access_token: state.accessToken, publish_id: publishId })
         });
         const statusData = await statusRes.json().catch(() => ({}));
-        console.log(`[TikTok upload] Status check ${attempt}/${maxAttempts}`, statusData);
-        if (statusData.status === 'PUBLISH_COMPLETE' || statusData.status === 'FAILED') {
-          finalStatus = statusData;
-          break;
-        }
-        subtitle.textContent = `Verifying upload with TikTok... (${statusData.status || 'processing'})`;
+        console.log(`[TikTok upload] Status ${attempt}/${maxAttempts}`, statusData);
+
+        // SEND_TO_USER_INBOX is the success state for the video.upload flow.
+        // Treating only PUBLISH_COMPLETE as terminal made successful uploads
+        // look like failures.
+        if (statusData.is_terminal) { finalStatus = statusData; break; }
+        subtitle.textContent = 'TikTok is checking the video… (' + (statusData.status || 'processing') + ')';
       } catch (statusErr) {
         console.warn('[TikTok upload] Status check failed', statusErr.message);
       }
     }
 
     if (finalStatus && finalStatus.status === 'FAILED') {
-      console.error('[TikTok upload] TikTok rejected the video after processing', finalStatus);
-      throw new Error(
-        'TikTok rejected the video: ' + (finalStatus.fail_reason || 'unknown reason') +
-        (finalStatus.uploaded_bytes ? ` (received ${finalStatus.uploaded_bytes} bytes)` : '')
-      );
-    }
-    if (!finalStatus) {
-      console.warn('[TikTok upload] Status still processing after all polling attempts — check the TikTok app inbox directly, or call upload-status again later with publish_id:', publish_id);
+      const reason = finalStatus.fail_reason;
+      const help = finalStatus.fail_reason_help ||
+        (SPEC ? SPEC.describeFailReason(reason) : '');
+      console.error('[TikTok upload] Rejected after processing', finalStatus);
+      throw new Error('TikTok rejected the video (' + (reason || 'no reason given') + '). ' + help);
     }
 
-    setStep(3, 'Upload complete', 100);
+    if (!finalStatus) {
+      console.warn('[TikTok upload] Still processing after polling. publish_id:', publishId);
+    }
+
+    setStep(3, 'Sent to your TikTok inbox', 100);
     progressBar.style.background = 'var(--green)';
-    subtitle.textContent = 'Sent to TikTok inbox — open the app to finish posting';
+    subtitle.textContent = 'Open the TikTok app to add a caption and post';
 
     setTimeout(() => {
       overlay.classList.remove('active');
       progressBar.style.width = '0%';
       steps.forEach(id => { const el = $('#' + id); if (el) el.classList.remove('active', 'done'); });
-      $('#header-upload-btn').disabled = false;
-      $('#main-upload-btn').disabled = false;
-      showToast('✓ Sent to TikTok — check your inbox in the app');
-    }, 1200);
+      syncUploadButtons();
+      showToast('Sent to TikTok. Open the app to finish posting.');
+    }, 1400);
   } catch (err) {
     overlay.classList.remove('active');
-    $('#header-upload-btn').disabled = false;
-    $('#main-upload-btn').disabled = false;
-    showToast('⚠ ' + err.message);
+    syncUploadButtons();
+    showToast(err.message);
     console.error('[TikTok upload] Failed:', err);
   }
 }
