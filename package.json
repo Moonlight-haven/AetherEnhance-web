@@ -1,8 +1,9 @@
 {
-  "name": "aetherenhance-web",
+  "name": "aether-upload-relay",
   "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "formidable": "^3.5.1"
-  }
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
 }
