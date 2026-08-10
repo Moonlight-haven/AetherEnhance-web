@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="tiktok-developers-site-verification" content="Jth5CgZbV2dN54unXAVN73MBBgf2PXGN" />
   <title>AetherEnhance Studio • Quality Bypass Engine</title>
+  <link rel="icon" type="image/png" href="/images/image.png">
+  <link rel="apple-touch-icon" href="/images/image.png">
 
   <!-- Centralized API Configuration -->
   <script src="config.js"></script>
@@ -82,7 +84,8 @@
     .studio-header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--bg);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid var(--border);z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 22px;transition:background .3s,border-color .3s}
     .header-left{display:flex;align-items:center;gap:14px}
     .header-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
-    .header-logo-mark{width:28px;height:28px;background:var(--white);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--bg);font-weight:800;font-family:'Geist Mono',monospace;transition:background .3s,color .3s}
+    .header-logo-mark{width:30px;height:30px;border-radius:7px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .header-logo-mark img{width:100%;height:100%;object-fit:cover;display:block}
     .header-logo-text{font-weight:800;font-size:14px;color:var(--white);letter-spacing:-.02em;transition:color .3s}
     .header-nav{display:flex;align-items:center;gap:2px;margin-left:16px}
     .header-nav-item{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all .15s;text-decoration:none;white-space:nowrap}
@@ -304,7 +307,7 @@
 <header class="studio-header">
   <div class="header-left">
     <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <a href="index.html" class="header-logo"><div class="header-logo-mark">◈</div><span class="header-logo-text">AetherEnhance</span></a>
+    <a href="index.html" class="header-logo"><div class="header-logo-mark"><img src="/images/image.png" alt="AetherEnhance app icon"></div><span class="header-logo-text">AetherEnhance</span></a>
     <nav class="header-nav" id="desktop-nav">
       <a href="index.html" class="header-nav-item home-link">⌂ Home</a>
       <a href="studio.html" class="header-nav-item active">Video Patcher</a>
@@ -423,7 +426,7 @@
         <tr><td style="color:var(--text-muted)">Codec</td><td class="status-val" id="stat-codec">—</td><td style="color:var(--text-muted)">H.264 High</td><td class="status-indicator" id="stat-codec-status">—</td></tr>
       </tbody></table>
     </div>
-    <p class="legal-disclaimer">By uploading, you agree to TikTok's <a href="#">Terms of Service</a>. Videos are processed via our quality bypass engine and deleted after delivery.</p>
+    <p class="legal-disclaimer">By uploading, you agree to TikTok's <a href="https://www.tiktok.com/legal/page/global/terms-of-service/en" target="_blank" rel="noopener">Terms of Service</a> and to our <a href="/terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>. Your video is sent to your TikTok drafts and is deleted from our side after delivery.</p>
   </div>
 </div>
 
@@ -434,9 +437,17 @@
 // ═══════════════════════════════════════
 const API = Object.assign({
   SERVER_API_ROOT: '/api',
-  CLIENT_KEY: 'awm0jgm4w8o7m0vg',
+  // Sandbox client key. config.js overrides this — keep the two in sync.
+  CLIENT_KEY: 'sbawcnh3lrvdw43xeb',
+  // The redirect_uri has to match, character for character, (a) a URI
+  // registered under Login Kit in the TikTok portal and (b) the value the
+  // server sends at token exchange. Deriving it from the live origin means
+  // one build works on the apex domain, the www domain and preview URLs —
+  // register each of them in the portal. The path is hard-coded rather than
+  // read from location.pathname so a clean-URL visit to /studio still sends
+  // the registered /studio.html value.
   REDIRECT_URI: (typeof window !== 'undefined'
-    ? window.location.origin + window.location.pathname
+    ? window.location.origin + '/studio.html'
     : '')
   // Optional. Set in config.js to route chunks through your own server
   // when the direct browser -> TikTok path is blocked on your network.
@@ -574,13 +585,26 @@ async function openTikTokAuthPopup() {
   localStorage.setItem('tiktok_code_verifier', codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
+  // Exactly the scopes this app uses — nothing more. TikTok's reviewers
+  // reject apps that declare scopes the demo never exercises, so the portal
+  // scope list has to match this string.
   const SCOPES = "user.info.basic,user.info.profile,video.upload";
+
+  // CSRF guard: TikTok echoes `state` back on the redirect, and we refuse any
+  // code that comes back with a state we did not issue.
+  const expectedState = generateCodeVerifier().slice(0, 32);
+  localStorage.setItem('tiktok_auth_state', expectedState);
+
+  // The exchange has to replay the identical redirect_uri, and it may run
+  // after a full page navigation, so persist it rather than recompute it.
+  localStorage.setItem('tiktok_redirect_uri', API.REDIRECT_URI);
 
   const authUrl = "https://www.tiktok.com/v2/auth/authorize/" +
     "?client_key=" + encodeURIComponent(API.CLIENT_KEY) +
-    "&scope=" + SCOPES +
+    "&scope=" + encodeURIComponent(SCOPES) +
     "&response_type=code" +
     "&redirect_uri=" + encodeURIComponent(API.REDIRECT_URI) +
+    "&state=" + encodeURIComponent(expectedState) +
     "&code_challenge=" + encodeURIComponent(codeChallenge) +
     "&code_challenge_method=S256";
 
@@ -592,17 +616,44 @@ async function openTikTokAuthPopup() {
 
   pollTimer = setInterval(() => {
     try {
-      if (popup.location.href.includes(API.REDIRECT_URI) || popup.location.href.includes('code=')) {
-        const code = new URL(popup.location.href).searchParams.get('code');
-        captureCodeOnce(code);
+      const href = popup.location.href;
+      if (href.includes('code=') || href.includes('error=')) {
+        const params = new URL(href).searchParams;
+        const denied = params.get('error');
+        if (denied) {
+          cleanupAuthListeners();
+          try { popup.close(); } catch (_) {}
+          showToast('TikTok denied the authorization: ' + (params.get('error_description') || denied));
+          return;
+        }
+        const returnedState = params.get('state');
+        if (returnedState && returnedState !== expectedState) {
+          cleanupAuthListeners();
+          try { popup.close(); } catch (_) {}
+          showToast('Authorization state mismatch. Start the authorization again.');
+          return;
+        }
+        captureCodeOnce(params.get('code'));
       }
-    } catch (e) { /* cross-origin until redirect lands */ }
+    } catch (e) { /* cross-origin until the redirect lands back on our origin */ }
     if (popup.closed) cleanupAuthListeners();
   }, 500);
 
   pkceHandler = function (e) {
     if (e.origin !== window.location.origin) return;
-    if (e.data && e.data.code) captureCodeOnce(e.data.code);
+    if (!e.data) return;
+    if (e.data.tiktokAuthError) {
+      cleanupAuthListeners();
+      showToast('TikTok denied the authorization: ' + e.data.tiktokAuthError);
+      return;
+    }
+    if (!e.data.code) return;
+    if (e.data.state && e.data.state !== expectedState) {
+      cleanupAuthListeners();
+      showToast('Authorization state mismatch. Start the authorization again.');
+      return;
+    }
+    captureCodeOnce(e.data.code);
   };
   window.addEventListener('message', pkceHandler);
 }
@@ -612,13 +663,16 @@ async function exchangeTokenWithPKCE(code) {
   if (!codeVerifier) { showToast('PKCE verifier missing. Start the authorization again.'); return; }
 
   const endpoint = `${API.SERVER_API_ROOT}/tiktok/exchange-token`;
+  // TikTok rejects the exchange unless redirect_uri is byte-identical to the
+  // one used in the authorize call.
+  const redirectUri = localStorage.getItem('tiktok_redirect_uri') || API.REDIRECT_URI;
   let res;
 
   try {
     res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, code_verifier: codeVerifier })
+      body: JSON.stringify({ code, code_verifier: codeVerifier, redirect_uri: redirectUri })
     });
   } catch (networkErr) {
     console.error('[Auth exchange] Network/CORS failure calling', endpoint, {
@@ -626,6 +680,8 @@ async function exchangeTokenWithPKCE(code) {
     });
     showToast('Could not reach the backend. Check that /api is deployed.');
     localStorage.removeItem('tiktok_code_verifier');
+    localStorage.removeItem('tiktok_redirect_uri');
+    localStorage.removeItem('tiktok_auth_state');
     return;
   }
 
@@ -640,6 +696,8 @@ async function exchangeTokenWithPKCE(code) {
     });
   }
   localStorage.removeItem('tiktok_code_verifier');
+  localStorage.removeItem('tiktok_redirect_uri');
+  localStorage.removeItem('tiktok_auth_state');
 
   if (!res.ok) {
     console.error('[Auth exchange] HTTP error', {
@@ -721,9 +779,56 @@ $('#modal-authorize-btn').addEventListener('click', openTikTokAuthPopup);
 $('#modal-later-btn').addEventListener('click', () => { authModal.classList.remove('active'); sessionStorage.setItem('studio-auth-dismissed', 'true'); showToast('You can authorize later'); });
 $('#connect-btn').addEventListener('click', openTikTokAuthPopup);
 
-const urlParams = new URLSearchParams(window.location.search);
-const authCode = urlParams.get('code');
-if (authCode) { window.history.replaceState({}, document.title, window.location.pathname); exchangeTokenWithPKCE(authCode); }
+// ═══════════════════════════════════════
+// OAUTH REDIRECT LANDING
+// ═══════════════════════════════════════
+// This page IS the registered redirect_uri, so TikTok sends the browser back
+// here with ?code=...&state=... — inside the popup when the popup flow ran.
+// An authorization code can only be spent once. The old build exchanged it in
+// whichever window loaded first while the opener polled for the same code, so
+// one of the two always failed with "code already used" and the main window
+// was usually the loser. The popup now just hands the code to its opener.
+(function handleOAuthRedirect() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const authCode = urlParams.get('code');
+  const authState = urlParams.get('state');
+  const authError = urlParams.get('error');
+  const inPopup = !!(window.opener && window.opener !== window);
+
+  if (authError) {
+    const detail = urlParams.get('error_description') || authError;
+    if (inPopup) {
+      try { window.opener.postMessage({ tiktokAuthError: detail }, window.location.origin); } catch (_) {}
+      window.close();
+      return;
+    }
+    window.history.replaceState({}, document.title, window.location.pathname);
+    showToast('TikTok denied the authorization: ' + detail);
+    return;
+  }
+
+  if (!authCode) return;
+
+  if (inPopup) {
+    try {
+      window.opener.postMessage({ code: authCode, state: authState }, window.location.origin);
+    } catch (err) {
+      console.error('[Auth] Could not hand the code to the opener', err);
+    }
+    window.close();
+    return;
+  }
+
+  // Same-tab fallback (popup blocked, or the user opened the link directly).
+  const expected = localStorage.getItem('tiktok_auth_state');
+  if (authState && expected && authState !== expected) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    showToast('Authorization state mismatch. Start the authorization again.');
+    return;
+  }
+  window.history.replaceState({}, document.title, window.location.pathname);
+  exchangeTokenWithPKCE(authCode);
+})();
 
 // ═══════════════════════════════════════
 // AUTH STATE MANAGEMENT
